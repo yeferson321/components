@@ -1,0 +1,45 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<"button"> {
+    toggleId: string;
+    ariaLabelActive: string;
+    ariaLabelInactive: string;
+};
+
+const { toggleId, class: className = "", ariaLabelActive, ariaLabelInactive, ...attributes } = Astro.props;
+---
+
+<button id={toggleId} class:list={["button-toggle", className]} data-toggle-id={toggleId} data-state="inactive" data-aria-label-active={ariaLabelActive} data-aria-label-inactive={ariaLabelInactive} {...attributes} aria-label={ariaLabelInactive} aria-pressed="false">        
+    <slot />
+</button>
+
+<script>
+    const setupButtonElement = (buttonElement: HTMLButtonElement) => {
+        const { toggleId, ariaLabelActive = "", ariaLabelInactive = "" } = buttonElement.dataset;
+        if (!toggleId) throw new Error('Missing "data-toggle-id" attribute on ButtonToggle component');
+
+        const elementOn = buttonElement.querySelector<HTMLElement>("[data-buttontoggle-active]");
+        const elementOff = buttonElement.querySelector<HTMLElement>("[data-buttontoggle-inactive]");
+
+        const setState = (nextIsActive: boolean) => {
+            buttonElement.dataset.state = nextIsActive ? "active" : "inactive";
+            buttonElement.setAttribute("aria-label", nextIsActive ? ariaLabelActive : ariaLabelInactive);
+            buttonElement.setAttribute("aria-pressed", String(nextIsActive));
+
+            elementOn?.classList.toggle("hidden", !nextIsActive);
+            elementOff?.classList.toggle("hidden", nextIsActive);
+
+            buttonElement.dispatchEvent(new CustomEvent("button-toggle:change", { detail: { active: nextIsActive }, bubbles: true }));
+        };
+
+        const toggleVisibility = () => setState(buttonElement.dataset.state !== "active");
+
+        buttonElement.addEventListener("click", toggleVisibility);
+        window.addEventListener(`button-toggle:toggle:${toggleId}`, toggleVisibility);
+        window.addEventListener(`button-toggle:activate:${toggleId}`, () => setState(true));
+        window.addEventListener(`button-toggle:deactivate:${toggleId}`, () => setState(false));
+    };
+
+    document.querySelectorAll<HTMLButtonElement>(".button-toggle").forEach(setupButtonElement);
+</script>

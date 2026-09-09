@@ -1,0 +1,138 @@
+{
+    "about": {
+        "title": "Sobre nosotros"
+    },
+
+    "loginModal": {
+        "signIn": {
+            "title": "Inicia sesión",
+            "subtitle": {
+                "text": "¿No tienes una cuenta?",
+                "action": "Crea una cuenta"
+            },
+            "form": {
+                "fields": {
+                    "email": {
+                        "label": "Tu correo electronico",
+                        "validation": {
+                            "REQUIRED": "El correo es obligatorio",
+                            "NO_SPACES": "El correo no puede contener espacios",
+                            "MISSING_AT": "El correo debe contener un @",
+                            "MISSING_LOCAL_PART": "Debe haber texto antes del @",
+                            "MISSING_DOMAIN": "Debe haber un dominio después del @",
+                            "TOO_SHORT": "El correo es demasiado corto",
+                            "TOO_LONG": "El correo es demasiado largo",
+                            "INVALID": "Introduce un correo electrónico válido"
+                        }
+                    },
+                    "currentPassword": {
+                        "label": "Tu contraseña",
+                        "ariaLabel": {
+                            "showPassword": "Mostrar contraseña",
+                            "hidePassword": "Ocultar contraseña"
+                        },
+                        "validation": {
+                            "REQUIRED": "La contraseña es obligatoria",
+                            "NO_SPACES": "No puede contener espacios",
+                            "TOO_SHORT": "Debe tener al menos 8 caracteres",
+                            "TOO_LONG": "Debe tener al maximo 8 caracteres",
+                            "INVALID": "Introduce una contraseña válida"
+                        }
+                    }
+                },
+                "actions": {
+                    "submit": "Iniciar sesión"
+                }
+            }
+        },
+
+        "signUp": {
+            "title": "Crea tu cuenta",
+            "subtitle": {
+                "text": "¿Ya tienes una cuenta?",
+                "action": "Inicia sesión"
+            },
+            "form": {
+                "fields": {
+                    "name": {
+                        "label": "Tu nombre",
+                        "validation": {
+                            "REQUIRED": "El nombre es obligatorio",
+                            "INVALID_CHARS": "Solo se permiten letras, espacios, apóstrofes y guiones",
+                            "SPACES": "No se permiten espacios consecutivos",
+                            "TOO_SHORT": "El nombre es demasiado corto",
+                            "TOO_LONG": "El nombre es demasiado largo",
+                            "INVALID": "Introduce un nombre válido"
+                        }
+                    },
+
+                    "email": {
+                        "label": "Tu correo electronico",
+                        "validation": {
+                            "REQUIRED": "El correo es obligatorio",
+                            "NO_SPACES": "El correo no puede contener espacios",
+                            "MISSING_AT": "El correo debe contener un @",
+                            "MISSING_LOCAL_PART": "Debe haber texto antes del @",
+                            "MISSING_DOMAIN": "Debe haber un dominio después del @",
+                            "TOO_SHORT": "El correo es demasiado corto",
+                            "TOO_LONG": "El correo es demasiado largo",
+                            "INVALID": "Introduce un correo electrónico válido"
+                        }
+                    },
+
+                    "newPassword": {
+                        "label": "Tu contraseña",
+                        "ariaLabel": {
+                            "showPassword": "Mostrar contraseña",
+                            "hidePassword": "Ocultar contraseña"
+                        },
+                        "passwordRules": {
+                            "title": "Tu contraseña debe tener:",
+                            "rules": {
+                                "length": "10 o mas caracteres",
+                                "letter": "Letras mayúsculas o minúsculas",
+                                "number": "Por lo menos un número",
+                                "special": "Por lo menos un caracter especial"
+                            }
+                        },
+                        "validation": {
+                            "REQUIRED": "La contraseña es obligatoria",
+                            "NO_SPACES": "La contraseña no puede contener espacios",
+                            "REPEATED_CHARACTERS": "Hay demasiados caracteres idénticos consecutivos",
+                            "MISSING_LETTER": "Debe contener al menos una letra",
+                            "MISSING_NUMBER": "Debe contener al menos un número",
+                            "MISSING_SPECIAL_CHAR": "Debe contener al menos un carácter especial",
+                            "TOO_SHORT": "Debe tener al menos 8 caracteres",
+                            "TOO_LONG": "Debe tener al máximo 64 caracteres",
+                            "INVALID": "Introduce una contraseña válida"
+                        }
+                    }
+                },
+
+                "actions": {
+                    "submit": "Crear cuenta"
+                }
+            }
+        },
+
+        "social": {
+            "title": "También puedes usar",
+            "google": {
+                "ariaLabel": "Iniciar sesión con Google"
+            },
+            "apple": {
+                "ariaLabel": "Iniciar sesión con Apple"
+            }
+        },
+
+        "terms": {
+            "text": "Al registrarte, aceptas nuestras",
+            "termsOfUse": "Condiciones de Uso",
+            "privacyPolicy": "Política de Privacidad"
+        },
+
+        "close": {
+            "ariaLabel": "Cerrar modal"
+        }
+    }
+}
