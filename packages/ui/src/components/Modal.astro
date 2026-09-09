@@ -1,0 +1,151 @@
+---
+interface Props {
+    modalId: string;
+    class?: string;
+    overlayColor?: string;
+    offset?: string;
+    verticalPosition?: 'top' | 'center' | 'bottom';
+    unmount?: boolean;
+};
+
+const { modalId, class: className = "", overlayColor, offset, verticalPosition = 'center', unmount = false } = Astro.props;
+---
+           
+<div id={modalId} class:list={["modal", className]} data-modal-id={modalId} data-state="closed" data-vertical={verticalPosition} data-unmount={unmount} aria-labelledby={`${modalId}-title`} tabindex="-1" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-overlay" style={overlayColor && `--overlay-color: ${overlayColor};`}></div>
+    <div class="modal-wrapper">
+        <div class="modal-positioner" style={offset && `--offset: ${offset};`}>
+            <div class="modal-panel">
+                <slot/>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.modal {
+    display: none;
+    position: relative;
+    z-index: 50;
+}
+
+.modal:not([data-state="closed"]) {
+    display: block;
+}
+
+.modal-overlay {
+    position: fixed;
+    inset: 0px;
+    opacity: 0;
+    background-color: var(--overlay-color);
+    backdrop-filter: blur(1px);
+    transition: opacity var(--transition-duration, 300ms) var(--transition-timing, ease-in-out);
+}
+
+.modal[data-state="open"] > .modal-overlay { opacity: 1; }
+
+.modal-wrapper {
+    position: fixed;
+    inset: 0px;
+    z-index: 50;
+    width: 100vw;
+    overflow-y: auto;
+    pointer-events: none;
+}
+
+.modal-positioner {
+    display: flex;
+    justify-content: center;
+    align-items: var(--align-items);
+    padding: var(--offset);
+    min-height: 100%;
+}
+
+.modal[data-vertical="top"] .modal-positioner { --align-items: flex-start; }
+.modal[data-vertical="center"] .modal-positioner { --align-items: center; }
+.modal[data-vertical="bottom"] .modal-positioner { --align-items: flex-end; }
+
+.modal-panel {
+    pointer-events: auto;
+    opacity: 0;
+    transform: translateY(10px) scale(75%);
+    transition: 
+        opacity var(--transition-duration, 300ms) var(--transition-timing, ease-in-out), 
+        transform var(--transition-duration, 300ms) var(--transition-timing, ease-in-out);
+}
+
+.modal[data-state="open"] .modal-panel {
+    opacity: 1;
+    transform: translateY(0) scale(100%);
+}
+</style>
+
+<script>
+    import { appendChildElement, removeElement, trapFocus } from '../utils/overlay';
+
+    const setupElementToggle = (modalElement: HTMLDivElement) => {
+        const { modalId, unmount } = modalElement.dataset;
+        if (!modalId) throw new Error('Missing "data-modal-id" attribute on Modal component');
+
+        const overlayElement = modalElement.querySelector<HTMLDivElement>(".modal-overlay");
+        if (!overlayElement) throw new Error(`Modal "${modalId}": component internal element(s) .modal-overlay not found.`);
+
+        const openButtonElement = document.querySelector<HTMLButtonElement>(`[data-modal-open="${modalId}"]`);
+        const closeButtonElement = modalElement.querySelector<HTMLButtonElement>("[data-modal-close]");
+        const focusableElement = modalElement.querySelector<HTMLElement>("[data-modal-autofocus]");
+        let lastFocusedElement: HTMLElement | null = null;
+
+        unmount === "true" ? removeElement(modalElement) : appendChildElement(modalElement);
+
+        const setAccessibility = (isOpen: boolean) => {
+            modalElement.dataset.state = isOpen ? "closed" : "open";
+            modalElement.setAttribute("aria-hidden", String(isOpen));
+            openButtonElement?.setAttribute("aria-expanded", String(!isOpen));
+        };
+        
+        const handleKeyboard = (event: KeyboardEvent) => {
+            if (event.key === "Escape") return hideModal();
+            if (event.key === "Tab") trapFocus(modalElement, event);
+        };
+
+        const showModal = () => {
+            if (modalElement.dataset.state !== "closed") return;
+            if (unmount === "true") appendChildElement(modalElement);
+
+            modalElement.dataset.state = "opening";
+
+            requestAnimationFrame(() => {
+                setAccessibility(false);
+                modalElement.addEventListener("keydown", handleKeyboard);
+
+                lastFocusedElement = document.activeElement as HTMLElement;
+                
+                (focusableElement || modalElement)?.focus();
+            });
+        };
+
+        const hideModal = () => {
+            if (modalElement.dataset.state !== "open") return;
+            modalElement.removeEventListener("keydown", handleKeyboard);
+
+            lastFocusedElement?.focus();
+
+            modalElement.dataset.state = "closing";
+
+            overlayElement.addEventListener("transitionend", () => {
+
+                setAccessibility(true);
+                
+                if (unmount === "true") removeElement(modalElement);
+            }, { once: true }); 
+        };
+
+        overlayElement.addEventListener("click", hideModal);
+        openButtonElement?.addEventListener("click", showModal);
+        closeButtonElement?.addEventListener("click", hideModal);
+        window.addEventListener(`modal:show:${modalId}`, showModal);
+        window.addEventListener(`modal:hide:${modalId}`, hideModal);
+    };
+
+    document.querySelectorAll<HTMLDivElement>(".modal").forEach(setupElementToggle);
+</script>

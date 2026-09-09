@@ -1,0 +1,1 @@
+export { setupForm } from './form/formValidation';

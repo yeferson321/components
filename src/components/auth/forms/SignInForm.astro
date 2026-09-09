@@ -1,0 +1,245 @@
+---
+import type { Translation } from '@/i18n/config';
+import Input from '@/components/common/Input.astro';
+
+interface Props {
+	translations: Translation.SignInForm;
+};
+
+const { translations } = Astro.props;
+---
+
+<h2 id="login-modal-title" class="text-center text-2xl font-medium text-neutral-800">{translations.title}</h2>
+
+<p class="mt-2 text-center text-base text-neutral-800">{translations.subtitle.text} <button type="button" class="underline text-neutral-600 font-medium" data-multistep-target="sign-up" aria-label="">{translations.subtitle.action}</button></p>
+
+<form id="signin-form" class="mt-6 space-y-4"> 
+
+    <Input type="email" name="email" autocomplete="email" minlength={6} maxlength={120} required={true} 
+        label={translations.form.fields.email.label} 
+        messages={translations.form.fields.email.validation}
+    />
+
+    <Input type="password" name="password" autocomplete="current-password" minlength={10} maxlength={64} required={true} 
+        label={translations.form.fields.currentPassword.label} 
+        messages={translations.form.fields.currentPassword.validation} 
+        passwordToggle={{
+            showLabel: translations.form.fields.currentPassword.ariaLabel.showPassword,
+            hideLabel: translations.form.fields.currentPassword.ariaLabel.hidePassword
+        }}
+    />
+
+    <div class="form-feedback mt-4 text-center text-sm text-red-500 hidden" data-form-feedback aria-live="polite"></div>
+
+	<button type="submit" class="w-full p-2 rounded-3xl text-center text-lg font-medium text-white bg-blue-500 transition-opacity duration-300 ease-in-out disabled:opacity-80 disabled:cursor-not-allowed disabled:pointer-events-none" disabled>{translations.form.actions.submit}</button>
+        			    
+</form>
+
+<script>
+    import { actions } from "astro:actions";
+    import { setupForm } from '@/components/common/form/formValidation';
+
+    type SignInForm = {
+        email: string;
+        password: string;
+    };
+
+    const form = document.getElementById('signin-form') as HTMLFormElement | null;
+    const formFeedback = form?.querySelector<HTMLElement>('[data-form-feedback]');
+
+    if (form) {
+        setupForm(form, async (data) => {
+            // formFeedback?.classList.add('hidden');
+
+            const { email, password } = data as SignInForm;
+
+            // const { name, email, newPassword } = data as unknown as RegisterForm;
+
+            console.log("formData", { email, password });
+        });
+    }
+</script>
+
+<style>
+
+
+</style>
+
+    <!-- // const multiStepElement = document.querySelector<HTMLDivElement>("[data-multi-step]");
+	// const signUpButton = document.querySelector<HTMLButtonElement>("[data-modal-open='sign-up-modal']");
+
+	// const hola = () => {
+	// 	const exists = false
+
+    // 	multiStepElement?.dispatchEvent(new CustomEvent("multi-step:change", { 
+    // 	    detail: { view: exists ? "sign-in" : "sign-up" } })
+    // 	);
+	// }
+
+	// signUpButton?.addEventListener("click", hola); -->
+
+        <!-- <FormField>
+
+            <div class="relative">
+                        
+                <input type="email" name="email" class="field-input peer block w-full py-3 px-4 border rounded-2xl border-neutral-600 bg-transparent transition-colors duration-300 focus:border-blue-500 focus:outline-none" autocomplete="email" minlength={6} maxlength={120} data-field-input placeholder=" " required={true}>
+
+                <label class="field-label absolute left-3 px-1 pointer-events-none duration-300 top-0 -translate-y-1/2 text-sm text-neutral-600 bg-white
+                    peer-placeholder-shown:top-1/2
+                    peer-placeholder-shown:-translate-y-1/2
+                    peer-placeholder-shown:text-base
+
+                    peer-placeholder-shown:bg-transparent
+                    peer-focus:top-0
+                    peer-focus:-translate-y-1/2
+                    peer-focus:text-sm
+                    peer-focus:text-blue-500
+                    peer-focus:bg-white">
+                    {translations.fields.email.label}
+                </label>
+                        
+            </div>
+        
+            <div class="field-feedback mt-0.5 mx-4 text-center text-sm" data-field-feedback aria-live="polite" data-messages={JSON.stringify(translations.fields.email.validation)}></div>
+            
+        </FormField>
+
+        <FormField>
+            
+            <div class="relative">
+
+                <input type="password" name="password" class="field-input peer block w-full py-3 px-4 border rounded-2xl border-neutral-600 bg-transparent transition-colors duration-300 focus:border-blue-500 focus:outline-none" autocomplete="password" minlength={8} maxlength={64} data-field-input placeholder=" " required={false}>
+
+                <label class="field-label absolute left-3 px-1 pointer-events-none duration-300 top-0 -translate-y-1/2 text-sm text-neutral-600 bg-white
+                    peer-placeholder-shown:top-1/2
+                    peer-placeholder-shown:-translate-y-1/2
+                    peer-placeholder-shown:text-base
+                    
+                    peer-placeholder-shown:bg-transparent
+                    peer-focus:top-0
+                    peer-focus:-translate-y-1/2
+                    peer-focus:text-sm
+                    peer-focus:text-blue-500
+                    peer-focus:bg-white">
+                    {translations.fields.password.label}
+                </label>
+
+                <IconToggle class="absolute right-4 top-1/2 -translate-y-1/2" data-toggle="password" ariaLabelActive={translations.fields.password.ariaLabel.hidePassword} ariaLabelInactive={translations.fields.password.ariaLabel.showPassword}>
+
+                    <IconEye stroke-width="1.6" width="20" height="20" class="stroke-neutral-600 hidden" data-icon-active/>
+
+                    <IconEyeSlash stroke-width="1.6" width="20" height="20" class="stroke-neutral-600" data-icon-inactive/>
+
+                </IconToggle>
+
+            </div>
+
+            <div class="field-feedback mt-0.5 mx-4 text-center text-sm" data-field-feedback aria-live="polite" data-messages={JSON.stringify(translations.fields.password.validation)}></div>
+
+        </FormField> -->
+
+<!-- 
+<script>
+    import { actions } from "astro:actions";
+
+    type loginForm = {
+        email: string;
+        password: string;
+    };
+
+    const form = document.querySelector('form');
+    const formFeedback = form?.querySelector('[data-form-feedback]') as HTMLElement | null;
+
+    form?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const formData = new FormData(form);
+        const dataf = Object.fromEntries(formData.entries()) as loginForm;
+
+        const { data, error } = await actions.login(dataf);
+
+        if (error) {
+            if (formFeedback) {
+                formFeedback.textContent = error.message;
+                formFeedback.classList.remove('hidden');
+            }
+            return;
+        }
+
+        console.log("formData", data, "result", data, error);
+    })
+</script> -->
+
+
+        <!-- const result = await actions.register(data);
+
+        if (result.error) {
+            console.error(result.error);
+            return;
+        }
+
+
+           const { data, error } = await actions.getUserByUsername({ username: "sofiapalmer" });
+
+                console.log(result.data);
+
+            // async function login() { -->
+         <!-- const { data, error } = await actions.getUserByUsername({
+             username: "sofiapalmer"
+         });
+
+         if (error) {
+             console.error(error);
+             return;
+         }
+
+         console.log(data);
+     
+     login(); -->
+
+
+<!-- <style>
+:global(.form-field[data-state="invalid"]) .field-input {
+    border-color: oklch(64.6% 0.222 41.116);
+}
+
+:global(.form-field[data-state="valid"]) .field-input {
+    border-color: oklch(50.8% 0.118 165.612);
+}
+
+
+
+:global(.form-field[data-state="invalid"]) .field-label {
+    color: oklch(64.6% 0.222 41.116);
+}
+
+:global(.form-field[data-state="valid"]) .field-label {
+    color: oklch(50.8% 0.118 165.612);
+}
+
+
+:global(.form-field[data-state="invalid"]) .field-feedback {
+    color: oklch(64.6% 0.222 41.116);
+}
+
+
+.field-strength-bar {
+    transition: 
+        width var(--transition-duration, 300ms) var(--transition-timing, ease-in-out), 
+        background-color var(--transition-duration, 300ms) var(--transition-timing, ease-in-out);
+}
+
+:global(.form-field[data-strength="weak"]) .field-strength-bar {
+    width: 25%;
+    background-color: oklch(69.6% 0.17 162.48);
+}
+
+:global(.form-field[data-strength="medium"]) .field-strength-bar {
+    width: 60%;
+    background-color: oklch(59.6% 0.145 163.225);
+}
+
+:global(.form-field[data-strength="strong"]) .field-strength-bar {
+    width: 100%;
+    background-color: oklch(50.8% 0.118 165.612);
+}
+</style> -->

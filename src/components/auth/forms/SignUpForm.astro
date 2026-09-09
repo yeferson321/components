@@ -1,0 +1,327 @@
+---
+import type { Translation } from '@/i18n/config';
+import { Input, ButtonToggle } from 'ui/components';
+
+import { IconCheckCircle, IconInformationCircle } from 'ui/icons/outline';
+
+interface Props {
+	translations: Translation.SignUpForm;
+};
+
+export const FIELD_LIMITS = {
+    email: { minLength: 6, maxLength: 120 },
+    name: { minLength: 2, maxLength: 120 },
+    password: { minLength: 10, maxLength: 64 },
+} as const;
+
+const { translations } = Astro.props;
+---
+
+<h2 id="login-modal-title" class="text-center text-2xl font-medium text-neutral-800">{translations.title}</h2>
+
+<p class="mt-2 text-center text-base text-neutral-800">{translations.subtitle.text} <button type="button" class="underline text-neutral-600 font-medium" data-multistep-target="sign-in" aria-label="">{translations.subtitle.action}</button></p>
+
+<form id="signup-form" class="mt-6 space-y-4">
+
+    <Input type="email" name="email" autocomplete="email" spellcheck="false" minlength={FIELD_LIMITS.email.minLength} maxlength={FIELD_LIMITS.email.maxLength} required={true} 
+        label={translations.form.fields.email.label} 
+        messages={translations.form.fields.email.validation}
+    />
+
+    <Input type="text" name="name" autocomplete="name" spellcheck="false" minlength={FIELD_LIMITS.name.minLength} maxlength={FIELD_LIMITS.name.maxLength} required={true} 
+        label={translations.form.fields.name.label} 
+        messages={translations.form.fields.name.validation}
+    />
+
+    <Input type="password" name="password" autocomplete="new-password" minlength={FIELD_LIMITS.password.minLength} maxlength={FIELD_LIMITS.password.maxLength} required={true} 
+        label={translations.form.fields.newPassword.label} 
+        messages={translations.form.fields.newPassword.validation} 
+        passwordToggle={{
+            showLabel: translations.form.fields.newPassword.ariaLabel.showPassword,
+            hideLabel: translations.form.fields.newPassword.ariaLabel.hidePassword
+        }}> 
+
+        <div class="mx-2 mt-2 space-y-1 password-rules">
+                
+            <p class="text-sm text-neutral-600">{translations.form.fields.newPassword.passwordRules.title}</p>
+                
+            <span class="flex items-start gap-1 text-sm text-neutral-600 transition-colors duration-300 ease-in-out" data-requirement="letter">
+                <IconCheckCircle stroke-width="1.6" width="18" height="18" class="stroke-current shrink-0"/>
+                {translations.form.fields.newPassword.passwordRules.rules.letter}
+            </span>
+                
+            <span class="flex items-start gap-1 text-sm text-neutral-600 transition-colors duration-300 ease-in-out" data-requirement="number">
+                <IconCheckCircle stroke-width="1.6" width="18" height="18" class="stroke-current shrink-0"/>
+                {translations.form.fields.newPassword.passwordRules.rules.number}
+            </span>
+                
+            <span class="flex items-start gap-1 text-sm text-neutral-600 transition-colors duration-300 ease-in-out" data-requirement="special">
+                <IconCheckCircle stroke-width="1.6" width="18" height="18" class="stroke-current shrink-0"/>
+                {translations.form.fields.newPassword.passwordRules.rules.special}
+            </span>
+                
+            <span class="flex items-start gap-1 text-sm text-neutral-600 transition-colors duration-300 ease-in-out" data-requirement="length">
+                <IconCheckCircle stroke-width="1.6" width="18" height="18" class="stroke-current shrink-0"/>
+                {translations.form.fields.newPassword.passwordRules.rules.length}
+            </span>
+                
+        </div>
+
+    </Input>
+
+    <div class="form-feedback flex items-start mx-2 text-orange-400"> 
+        <IconInformationCircle stroke-width="1.6" width="14" height="14" class="shrink-0 me-1 mt-0.5" aria-hidden="true" /> 
+        <span class="form-feedback-message text-sm" aria-live="polite" data-form-feedback data-state="valid"></span> 
+    </div>
+
+    <ButtonToggle toggleId="submit" type="submit" class="w-full h-11 px-2 rounded-3xl flex items-center justify-center text-lg font-medium text-white bg-blue-500 transition-opacity duration-300 ease-in-out disabled:opacity-70 disabled:cursor-not-allowed disabled:pointer-events-none" data-toggle="submit" ariaLabelActive="" ariaLabelInactive="" disabled>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icons-tabler-outline icon-tabler-loader-4 size-6 animate-spin hidden" data-buttontoggle-active>
+        	<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+        	<path d="M12 21v-3m6.36 .36l-2.12 -2.12m4.76 -4.24h-3m.36 -6.36l-2.12 2.12m-4.24 -4.76v3m-6.36 -.36l2.12 2.12m-3.76 4.24h2m1 4.95l.71 -.71" />
+        </svg>
+
+        <span class="" data-buttontoggle-inactive>{translations.form.actions.submit}</span>
+
+    </ButtonToggle>
+        			    
+</form>
+
+<script>
+    import { actions } from 'astro:actions';
+    import { setupForm } from 'ui/behaviors';
+
+    type SignUpForm = {
+        email: string;
+        name: string;
+        password: string;
+    };
+
+    const form = document.getElementById('signup-form') as HTMLFormElement | null;
+    const formFeedback = form?.querySelector<HTMLSpanElement>('[data-form-feedback]');
+    const submitButton = form?.querySelector<HTMLButtonElement>('button[type="submit"]');
+
+    if (form) {
+        const { setServerError } = setupForm<SignUpForm>(form, async (data) => {
+            const { data: result, error } = await actions.register(data);
+
+            if (error) {
+                if (formFeedback) {
+                    formFeedback.textContent = error.message;
+                    formFeedback.dataset.state = "error";
+                }
+
+                setServerError();
+                submitButton?.dispatchEvent(new CustomEvent("button-toggle:deactivate:submit", { bubbles: true }));
+                return;
+            }
+        });
+
+        // limpia el mensaje de error del servidor en cuanto el usuario empieza a corregir
+        form.addEventListener("input", () => {
+            if (formFeedback?.dataset.state !== "error") return;
+
+            formFeedback.textContent = "";
+            formFeedback.dataset.state = "valid";
+        });
+    }
+</script>
+
+<style>
+.form-feedback {
+    display: none;
+}
+
+.form-feedback:has(.form-feedback-message[data-state="error"]) {
+    display: flex;
+}
+</style>
+
+
+<!-- <form class="mt-6"> 
+
+	<div class="space-y-4">
+￼Tu contraseña￼
+
+		<FormField>
+
+            <div class="relative">
+                        
+                <input type="text" name="name" class="field-input peer block w-full py-3 px-4 border rounded-2xl border-neutral-600 bg-transparent transition-colors duration-300 focus:border-blue-500 focus:outline-none" autocomplete="name" minlength={6} maxlength={120} data-field-input placeholder=" " required={true}>
+
+                <label class="field-label absolute left-3 px-1 pointer-events-none duration-300 top-0 -translate-y-1/2 text-sm text-neutral-600 bg-white
+                    peer-placeholder-shown:top-1/2
+                    peer-placeholder-shown:-translate-y-1/2
+                    peer-placeholder-shown:text-base
+
+                    peer-placeholder-shown:bg-transparent
+                    peer-focus:top-0
+                    peer-focus:-translate-y-1/2
+                    peer-focus:text-sm
+                    peer-focus:text-blue-500
+                    peer-focus:bg-white">
+                    {translations.fields.name.label}
+                </label>
+                        
+            </div>
+        
+            <div class="field-feedback mt-0.5 mx-4 text-center text-sm" data-field-feedback aria-live="polite" data-messages={JSON.stringify(translations.fields.name.validation)}></div>
+            
+        </FormField>
+
+        <FormField>
+
+            <div class="relative">
+                        
+                <input type="email" name="email" class="field-input peer block w-full py-3 px-4 border rounded-2xl border-neutral-600 bg-transparent transition-colors duration-300 focus:border-blue-500 focus:outline-none" autocomplete="email" minlength={6} maxlength={120} data-field-input placeholder=" " required={true}>
+
+                <label class="field-label absolute left-3 px-1 pointer-events-none duration-300 top-0 -translate-y-1/2 text-sm text-neutral-600 bg-white
+                    peer-placeholder-shown:top-1/2
+                    peer-placeholder-shown:-translate-y-1/2
+                    peer-placeholder-shown:text-base
+
+                    peer-placeholder-shown:bg-transparent
+                    peer-focus:top-0
+                    peer-focus:-translate-y-1/2
+                    peer-focus:text-sm
+                    peer-focus:text-blue-500
+                    peer-focus:bg-white">
+                    {translations.fields.email.label}
+                </label>
+                        
+            </div>
+        
+            <div class="field-feedback mt-0.5 mx-4 text-center text-sm" data-field-feedback aria-live="polite" data-messages={JSON.stringify(translations.fields.name.validation)}></div>
+            
+        </FormField>
+
+        <FormField>
+            
+            <div class="relative">
+
+                <input type="password" name="newPassword" class="field-input peer block w-full py-3 px-4 border rounded-2xl border-neutral-600 bg-transparent transition-colors duration-300 focus:border-blue-500 focus:outline-none" autocomplete="new-password" minlength={8} maxlength={64} data-field-input placeholder=" " required={false}>
+
+                <label class="field-label absolute left-3 px-1 pointer-events-none duration-300 top-0 -translate-y-1/2 text-sm text-neutral-600 bg-white
+                    peer-placeholder-shown:top-1/2
+                    peer-placeholder-shown:-translate-y-1/2
+                    peer-placeholder-shown:text-base
+                    
+                    peer-placeholder-shown:bg-transparent
+                    peer-focus:top-0
+                    peer-focus:-translate-y-1/2
+                    peer-focus:text-sm
+                    peer-focus:text-blue-500
+                    peer-focus:bg-white">
+                    {translations.fields.newPassword.label}
+                </label>
+
+                <IconToggle class="absolute right-4 top-1/2 -translate-y-1/2" data-toggle="password" ariaLabelActive={translations.fields.newPassword.ariaLabel.hidePassword} ariaLabelInactive={translations.fields.newPassword.ariaLabel.showPassword}>
+
+                    <IconEye stroke-width="1.6" width="20" height="20" class="stroke-neutral-600 hidden" data-icon-active/>
+
+                    <IconEyeSlash stroke-width="1.6" width="20" height="20" class="stroke-neutral-600" data-icon-inactive/>
+
+                </IconToggle>
+
+            </div>
+
+            <div class="field-feedback mt-0.5 mx-4 text-center text-sm" data-field-feedback aria-live="polite" data-messages={JSON.stringify(translations.fields.newPassword.validation)}></div>
+
+            <div class="mt-2 mx-4">
+                <div class="w-full h-1 rounded-full bg-neutral-200">
+                    <div class="field-strength-bar w-1/4 h-1 rounded-full bg-emerald-500"></div>
+                </div>
+            </div>
+            
+        </FormField>
+
+        <div class="form-feedback mt-4 text-center text-sm text-red-500 hidden" data-form-feedback aria-live="polite"></div>
+
+    </div>
+
+	<button type="submit" class="mt-6 w-full p-2 rounded-3xl text-center text-lg font-medium text-white bg-blue-500 transition-opacity duration-300 ease-in-out disabled:opacity-80 disabled:cursor-not-allowed disabled:pointer-events-none" disabled>{translations.actions.submit}</button>
+        			    
+</form> -->
+
+
+     <!-- form?.addEventListener('submit', async (event) => {
+         event.preventDefault();
+
+         if (!validateAllFields()) {
+             if (formFeedback) {
+                 formFeedback.textContent = "Revisa los campos marcados antes de continuar.";
+                 formFeedback.classList.remove('hidden');
+             }
+             return;
+         }
+
+         console.log("submit form");
+        
+         const formData = new FormData(form);
+         const dataf = Object.fromEntries(formData.entries()) as RegisterForm;
+
+         const { data, error } = await actions.register(dataf);
+
+         if (error) {
+             if (formFeedback) {
+                 formFeedback.textContent = error.message;
+                 formFeedback.classList.remove('hidden');
+             }
+             return;
+         }
+          window.location.href = "/profile";
+      
+         console.log("formData", data, "result", data, error);
+     }) -->
+
+
+        <!-- const result = await actions.register(data);
+
+        if (result.error) {
+            console.error(result.error);
+            return;
+        }
+
+
+           const { data, error } = await actions.getUserByUsername({ username: "sofiapalmer" });
+
+                console.log(result.data);
+
+            // async function login() { -->
+         <!-- const { data, error } = await actions.getUserByUsername({
+             username: "sofiapalmer"
+         });
+
+         if (error) {
+             console.error(error);
+             return;
+         }
+
+         console.log(data);
+     
+     login(); -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

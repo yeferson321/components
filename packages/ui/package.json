@@ -1,0 +1,19 @@
+{
+  "name": "ui",
+  "version": "0.0.1",
+  "type": "module",
+  "exports": {
+    "./components": "./src/components/index.ts",
+
+    "./icons/brands/color": "./src/icons/brands/color/index.ts",
+
+    "./icons/outline": "./src/icons/outline/index.ts",
+
+    "./behaviors": "./src/behaviors/index.ts",
+
+    "./utils": "./src/utils/index.ts"
+  },
+  "peerDependencies": {
+    "astro": "^7.0.0"
+  }
+}

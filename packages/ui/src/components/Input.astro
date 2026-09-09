@@ -1,0 +1,138 @@
+---
+import ButtonToggle from '../components/ButtonToggle.astro';
+import IconEye from '../icons/outline/IconEye.svg';
+import IconEyeSlash from '../icons/outline/IconEyeSlash.svg';
+import IconInformationCircle from '../icons/outline/IconInformationCircle.svg';
+
+interface Props extends astroHTML.JSX.InputHTMLAttributes {
+    class?: string;
+    label?: string;
+    messages?: Record<string, string>;
+    passwordToggle?: {
+        showLabel: string;
+        hideLabel: string;
+    };
+}
+
+const { class: className, type, label, messages = {}, passwordToggle, ...inputAttributes } = Astro.props;
+
+const showPasswordToggle = type === 'password' && passwordToggle;
+---
+
+<div class="form-field">
+    <div class="relative">
+        <input type={type} class:list={["field-input peer block w-full py-2.5 px-4 border rounded-2xl border-neutral-600 text-lg text-neutral-600 bg-transparent transition-colors duration-300 focus:border-blue-500 focus:outline-none", className ]}  placeholder=" " {...inputAttributes} data-field-input/>
+
+        <label class="field-label absolute left-3 px-1 pointer-events-none duration-300 top-0 -translate-y-1/2 text-base text-neutral-600 bg-white
+            peer-placeholder-shown:top-1/2
+            peer-placeholder-shown:-translate-y-1/2
+            peer-placeholder-shown:text-lg
+            peer-placeholder-shown:bg-transparent
+            peer-focus:top-0
+            peer-focus:-translate-y-1/2
+            peer-focus:text-base
+            peer-focus:text-blue-500
+            peer-focus:bg-white">
+            {label}
+        </label>
+
+        { showPasswordToggle && (
+            <ButtonToggle toggleId="password" type="button" class="absolute right-4 top-1/2 -translate-y-1/2" data-toggle="password" ariaLabelActive={passwordToggle.hideLabel} ariaLabelInactive={passwordToggle.showLabel}>
+                <IconEye stroke-width="1.6" width="20" height="20" class="stroke-neutral-600 hidden" data-buttontoggle-active />
+                <IconEyeSlash stroke-width="1.6" width="20" height="20" class="stroke-neutral-600" data-buttontoggle-inactive/>
+            </ButtonToggle>
+        )}
+    </div>
+
+    <div class="field-feedback flex items-start mx-2 mt-0.5 text-orange-600"> 
+        <IconInformationCircle stroke-width="1.6" width="14" height="14" class="shrink-0 me-1 mt-0.5" aria-hidden="true" /> 
+        <span class="text-sm" aria-live="polite" data-field-feedback data-messages={JSON.stringify(messages)}></span> 
+    </div>
+
+    <slot />
+    
+</div>
+
+<script>
+    const setupInput = (toggleButton: HTMLButtonElement) => {
+        const inputElement = toggleButton.closest('.form-field')?.querySelector<HTMLInputElement>('[data-field-input]');
+        if (!inputElement) return;
+
+        toggleButton.addEventListener("button-toggle:change", (event) => {
+            const { active } = (event as CustomEvent<{ active: boolean }>).detail;
+            inputElement.type = active ? "text" : "password";
+        });
+    };
+
+    document.querySelectorAll<HTMLButtonElement>('[data-toggle="password"]').forEach(setupInput);
+</script>
+
+<style is:global>
+.form-field[data-state="valid"] .field-input {
+    border-color: oklch(50.8% 0.118 165.612);
+}
+
+.form-field[data-state="invalid"] .field-input {
+    border-color: oklch(75% 0.183 55.934)
+}
+
+.form-field[data-state="error"] .field-input {
+    border-color: oklch(75% 0.183 55.934)
+}
+
+.form-field[data-state="valid"] .field-label {
+    color: oklch(50.8% 0.118 165.612);
+}
+
+.form-field[data-state="invalid"] .field-label {
+    color: oklch(75% 0.183 55.934)
+}
+
+.form-field[data-state="error"] .field-label {
+    color: oklch(75% 0.183 55.934)
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    /* Esto simula el background-color real usando un box-shadow enorme */
+    -webkit-box-shadow: 0 0 0 1000px oklch(100% 0 0) inset !important;
+    box-shadow: 0 0 0 1000px oklch(100% 0 0) inset !important;
+    
+    /* El color del texto sí puedes forzarlo directamente */
+    -webkit-text-fill-color: oklch(43.9% 0 0) !important;
+    caret-color: oklch(43.9% 0 0);
+
+    /* Evita el "flash" del color por defecto al cargar */
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+.field-feedback {
+    display: none;
+}
+
+.form-field[data-state="invalid"] .field-feedback {
+    display: flex;
+}
+
+.form-field[data-req-letter="true"] [data-requirement="letter"] {
+    color: oklch(50.8% 0.118 165.612);
+}
+
+.form-field[data-req-number="true"] [data-requirement="number"] {
+    color: oklch(50.8% 0.118 165.612);
+}
+
+.form-field[data-req-special="true"] [data-requirement="special"] {
+    color: oklch(50.8% 0.118 165.612);
+}
+
+.form-field[data-req-length="true"] [data-requirement="length"] {
+    color: oklch(50.8% 0.118 165.612);
+}
+
+.form-field[data-state="error"] [data-requirement] {
+    color: oklch(43.9% 0 0) !important; /* mismo neutral que usas en el resto del texto */
+}
+</style>

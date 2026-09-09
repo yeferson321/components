@@ -1,0 +1,92 @@
+---
+import type { Translation } from '@/i18n/config';
+import { Modal } from 'ui/components';
+// import MultiStep from '@/components/common/MultiStep.astro';
+
+// import SignInForm from './forms/SignInForm.astro';
+import SignUpForm from './forms/SignUpForm.astro';
+
+import { IconXmark } from 'ui/icons/outline';
+import { IconGoogle, IconApple } from 'ui/icons/brands/color';
+
+interface Props {
+	translations: Translation.LoginModal;
+};
+
+const { translations } = Astro.props;
+---
+
+<Modal modalId="login-modal" verticalPosition="center" overlayColor="rgba(0,0,0,0.5)" offset="2rem">
+					
+    <div class="px-8 pt-12 pb-8 sm:my-8 sm:w-full sm:max-w-lg rounded-3xl border border-neutral-200/70 bg-white">
+						
+		<!-- <h2 id="login-modal-title" class="text-center text-2xl font-medium text-neutral-800">Ingresa tu correo electronico</h2>
+
+		<p class="mt-2 text-center text-base font-medium text-neutral-600">Si no tienes una cuenta, se te indicará crear una.</p>
+
+		<button type="button" class="mt-2 text-center text-base font-medium text-neutral-600" data-modal-open="sign-up-modal" aria-label="Abrir modal de registro">	
+			Regitrate
+		</button> -->
+
+		<!-- <MultiStep> -->
+
+			<!-- <div class="auth-view" data-multistep-view="sign-in" data-active="true">
+				<SignInForm translations={translations.signIn}/>
+			</div> -->
+			
+			<div class="auth-view" data-multistep-view="sign-up" data-active="false">
+				<SignUpForm translations={translations.signUp}/>
+			</div>
+
+		<!-- </MultiStep> -->
+
+		<p class="mt-6 text-center text-base text-neutral-800">{translations.social.title}</p>
+					
+        <div class="mt-4 flex gap-3">
+
+        	<button class="flex-1 flex items-center justify-center h-11 px-2 rounded-2xl border border-neutral-200/70 bg-neutral-100" aria-label={translations.social.google.ariaLabel}>
+        	    <IconGoogle width="24" height="24"/>
+        	</button>
+						
+        	<button class="flex-1 flex items-center justify-center h-11 px-2 rounded-2xl border border-neutral-200/70  bg-neutral-100" aria-label={translations.social.apple.ariaLabel}>
+        	    <IconApple width="24" height="24"/>
+        	</button>
+
+        </div>
+
+		<p class="mt-6 text-center text-sm text-neutral-800">
+            {translations.terms.text} <a href="/terms" class="underline font-medium">{translations.terms.termsOfUse}</a> • <a href="/privacy" class="underline font-medium">{translations.terms.privacyPolicy}</a>
+        </p>
+	
+		<button type="button" class="absolute top-4 inset-e-7" data-modal-close aria-label={translations.close.ariaLabel}>
+			<IconXmark stroke-width="1.8" width="28" height="28" class="stroke-neutral-600"/>
+		</button>
+					
+    </div>
+
+</Modal>
+
+<!-- <script>
+	const multiStepElement = document.querySelector<HTMLDivElement>("[data-multi-step]");
+	const signUpButton = document.querySelector<HTMLButtonElement>("[data-modal-open='sign-up-modal']");
+
+	const hola = () => {
+		const exists = false
+
+    	multiStepElement?.dispatchEvent(new CustomEvent("multi-step:change", { 
+    	    detail: { view: exists ? "sign-in" : "sign-up" } })
+    	);
+	}
+
+	signUpButton?.addEventListener("click", hola);
+</script> -->
+
+<!-- <style>
+.auth-view {
+    display: none;
+}
+
+.auth-view[data-active="true"] {
+    display: block;
+}
+</style> -->
