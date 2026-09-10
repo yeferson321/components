@@ -14,8 +14,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro",
-    "generate-types": "wrangler types"
+    "astro": "astro"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.3.1",
@@ -24,8 +23,7 @@
     "astro": "^7.3.1",
     "pbkdf2-lite": "^0.1.1",
     "tailwindcss": "^4.3.3",
-    "ui": "^0.0.1",
-    "wrangler": "^4.130.0"
+    "ui": "^0.0.1"
   },
   "allowScripts": {
     "esbuild": true

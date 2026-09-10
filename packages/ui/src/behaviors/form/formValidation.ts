@@ -1,5 +1,5 @@
 import type { FieldState } from './types';
-import { debounce } from '../../utils/limitExecution';
+import { debounce } from '#/utils/limitExecution';
 import { validators } from './inputValidation';
 import { normalize } from './rules';
 
