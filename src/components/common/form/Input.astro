@@ -1,26 +1,31 @@
 ---
-import ButtonToggle from './ButtonToggle.astro';
-import { IconEye, IconEyeSlash, IconInformationCircle } from '#/icons/outline/index';
+import { ButtonToggle, FormField } from 'ui/components';
+import { IconEye, IconEyeSlash } from 'ui/icons/outline';
+import Feedback from '@/components/common/form/Feedback.astro';
+import type { ValidatorKey } from 'ui/behaviors'; // ajustá el path real de tu módulo de validación
 
 interface Props extends astroHTML.JSX.InputHTMLAttributes {
     class?: string;
     label?: string;
     messages?: Record<string, string>;
+    validate: ValidatorKey;
     passwordToggle?: {
         showLabel: string;
         hideLabel: string;
     };
-}
+};
 
-const { class: className, type, label, messages = {}, passwordToggle, ...inputAttributes } = Astro.props;
+const { class: className, type, label, messages = {}, validate, passwordToggle, ...inputAttributes } = Astro.props;
 
 const showPasswordToggle = type === 'password' && passwordToggle;
 ---
 
-<div class="form-field">
-    <div class="relative">
-        <input type={type} class:list={["field-input peer block w-full py-2.5 px-4 border rounded-2xl border-neutral-600 text-lg text-neutral-600 bg-transparent transition-colors duration-300 focus:border-blue-500 focus:outline-none", className ]}  placeholder=" " {...inputAttributes} data-field-input/>
+<FormField>
 
+    <div class="relative">
+        
+        <input type={type} class:list={["field-input", className ]} placeholder=" " {...inputAttributes} data-field-input data-validate={validate}/>
+        
         <label class="field-label absolute left-3 px-1 pointer-events-none duration-300 top-0 -translate-y-1/2 text-base text-neutral-600 bg-white
             peer-placeholder-shown:top-1/2
             peer-placeholder-shown:-translate-y-1/2
@@ -42,14 +47,11 @@ const showPasswordToggle = type === 'password' && passwordToggle;
         )}
     </div>
 
-    <div class="field-feedback flex items-start mx-2 mt-0.5 text-orange-600"> 
-        <IconInformationCircle stroke-width="1.6" width="14" height="14" class="shrink-0 me-1 mt-0.5" aria-hidden="true" /> 
-        <span class="text-sm" aria-live="polite" data-field-feedback data-messages={JSON.stringify(messages)}></span> 
-    </div>
+    <Feedback type="field" messages={messages} />
 
     <slot />
-    
-</div>
+
+</FormField>
 
 <script>
     const setupInput = (toggleButton: HTMLButtonElement) => {
@@ -61,6 +63,7 @@ const showPasswordToggle = type === 'password' && passwordToggle;
             inputElement.type = active ? "text" : "password";
         });
     };
+
 
     document.querySelectorAll<HTMLButtonElement>('[data-toggle="password"]').forEach(setupInput);
 </script>
@@ -106,13 +109,13 @@ input:-webkit-autofill:active {
     transition: background-color 5000s ease-in-out 0s;
 }
 
-.field-feedback {
+/* .field-feedback {
     display: none;
 }
 
 .form-field[data-state="invalid"] .field-feedback {
     display: flex;
-}
+} */
 
 .form-field[data-req-letter="true"] [data-requirement="letter"] {
     color: oklch(50.8% 0.118 165.612);

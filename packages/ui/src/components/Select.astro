@@ -1,0 +1,46 @@
+---
+import { IconChevronDown } from '#/icons/outline/index';
+
+type SelectOption = number | string | {
+    value: string | number;
+    label: string;
+};
+
+interface Props extends astroHTML.JSX.SelectHTMLAttributes {
+    name: string;
+    class?: string;
+    options: SelectOption[];
+}
+
+const { name, class: className, options, ...selectAttributes } = Astro.props;
+---		
+
+<div class="relative">
+
+    <select name={name} class:list={["peer w-full px-4 py-2.5 appearance-none rounded-2xl border border-neutral-600 bg-transparent text-lg text-neutral-600 transition-colors duration-300 focus:border-blue-500 focus:outline-none [&:has(option:checked:not([value=''])):not(:focus)]:border-emerald-700", className ]}  {...selectAttributes}>
+        <option value="" disabled selected hidden></option>
+        {options.map((option) => {
+            const value = typeof option === 'object' ? option.value : option;
+            const optionLabel = typeof option === 'object' ? option.label : option;
+
+            return <option value={value}>{optionLabel}</option>;
+        })}
+    </select>
+
+	<span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 px-1 text-lg text-neutral-600 transition-all duration-300
+	    peer-[:has(option:checked:not([value='']))]:top-0
+	    peer-[:has(option:checked:not([value='']))]:-translate-y-1/2
+	    peer-[:has(option:checked:not([value='']))]:bg-white
+	    peer-[:has(option:checked:not([value='']))]:text-base
+	    peer-[:has(option:checked:not([value='']))]:text-blue-500
+	    peer-[&:has(option:checked:not([value=''])):not(:focus)]:text-emerald-700">
+	    {name}
+	</span>
+
+	<IconChevronDown stroke-width="1.6" width="20" height="20" class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 stroke-neutral-600"/>
+			
+</div>
+
+<style>
+
+</style>

@@ -1,0 +1,30 @@
+---
+import { IconInformationCircle } from 'ui/icons/outline';
+
+interface Props {
+	type: "form" | "field";
+    messages?: Record<string, string>;
+};
+
+const { type, messages } = Astro.props;
+---
+
+<div class:list={['feedback flex items-start mx-2 mt-0.5 text-orange-400', `${type}-feedback`]}> 
+    <IconInformationCircle stroke-width="1.6" width="14" height="14" class="shrink-0 me-1 mt-0.5" aria-hidden="true" /> 
+    <span class="text-sm" aria-live="polite" data-feedback={type} data-messages={JSON.stringify(messages)}></span> 
+</div>
+
+<style is:global>
+.feedback {
+    display: none;
+}
+
+.form-field[data-state="invalid"] .feedback,
+.form-field[data-state="error"] .feedback {
+    display: flex;
+}
+
+.feedback:has([data-feedback="form"][data-state="invalid"]) {
+    display: flex;
+}
+</style>

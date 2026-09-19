@@ -1,0 +1,97 @@
+---
+interface Props {
+    class?: string;
+};
+
+const { class: className = "" } = Astro.props;
+---
+
+<div class:list={["form-field", className]}>
+    <slot />
+</div>
+
+<script>
+    import type { FieldState, ValidatorKey, FormFieldElement } from '../behaviors/form/types';
+    import { validators } from '../behaviors/form/inputValidation';
+    import { debounce } from '../utils/limitExecution';
+
+    // Parsea el data-messages del feedback. showMessage muestra por code (cacheado
+    // en activeCode); setOverride escribe texto ya resuelto e invalida ese cache.
+    const createMessageHandler = (feedbackElement: HTMLElement | null) => {
+        const rawMessages = feedbackElement?.dataset.messages;
+        const messages: Record<string, string> = rawMessages ? JSON.parse(rawMessages) : {};
+        if (feedbackElement) delete feedbackElement.dataset.messages;
+
+        let activeCode = "";
+
+        const showMessage = (code: string) => {
+            if (!feedbackElement || code === activeCode) return;
+            feedbackElement.textContent = messages[code] ?? "";
+            activeCode = code;
+        };
+
+        const setOverride = (message: string) => {
+            if (!feedbackElement) return;
+            feedbackElement.textContent = message;
+            activeCode = "__override__";
+        };
+
+        return { showMessage, setOverride, messages };
+    };
+
+    const setupField = (fieldElement: FormFieldElement) => {
+        const inputElement = fieldElement.querySelector<HTMLInputElement>("[data-field-input]");
+        if (!inputElement) return;
+
+        const { minLength, maxLength, required } = inputElement;
+        const key = inputElement.dataset.validate as ValidatorKey | undefined;
+        const validator = key ? validators[key] : undefined;
+
+        if (!validator) {
+            console.warn(`No hay validador registrado para data-validate="${key ?? ""}"`, inputElement);
+            return;
+        }
+
+        const properties = { minLength, maxLength, required };
+        const { showMessage, setOverride, messages } = createMessageHandler(
+            fieldElement.querySelector<HTMLElement>(`[data-feedback="field"]`)
+        );
+
+        const validate = (): FieldState => {
+            const { code, state, requirements } = validator({
+                value: inputElement.value,
+                validity: inputElement.validity,
+                properties,
+            });
+
+            fieldElement.dataset.state = state;
+            showMessage(code);
+
+            if (requirements) {
+                for (const [requirement, isValid] of Object.entries(requirements)) {
+                    fieldElement.setAttribute(`data-req-${requirement}`, String(isValid));
+                }
+            }
+
+            fieldElement.dispatchEvent(new CustomEvent("field:validated", { bubbles: true, detail: { state } }));
+            return state;
+        };
+
+        // Expuestos en el DOM para que setupForm los use sin conocer setupField.
+        fieldElement.validate = validate;
+
+        // code de servidor: busca en el diccionario propio del campo y, si no
+        // está, usa fallbackMessage (setupForm lo resuelve contra el form).
+        fieldElement.setError = (code, fallbackMessage) => {
+            fieldElement.dataset.state = "error";
+            if (messages[code] !== undefined) return showMessage(code);
+            if (fallbackMessage !== undefined) return setOverride(fallbackMessage);
+            console.warn(`No hay traducción para el code de error "${code}"`, fieldElement);
+            showMessage(code);
+        };
+
+        inputElement.addEventListener("input", debounce(validate, 400));
+    };
+
+    document.querySelectorAll<FormFieldElement>(".form-field").forEach(setupField);
+</script>

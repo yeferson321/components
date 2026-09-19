@@ -42,6 +42,10 @@
                 },
                 "actions": {
                     "submit": "Iniciar sesión"
+                },
+                "error": {
+                    "SERVER_ERROR": "Hubo un problema, inténtelo de nuevo.",
+                    "BAD_REQUEST": "Alguno de sus datos es incorrecto."
                 }
             }
         },
@@ -111,6 +115,11 @@
 
                 "actions": {
                     "submit": "Crear cuenta"
+                },
+                
+                "error": {
+                    "SERVER_ERROR": "Hubo un problema, inténtelo de nuevo.",
+                    "BAD_REQUEST": "Alguno de sus datos es incorrecto."
                 }
             }
         },

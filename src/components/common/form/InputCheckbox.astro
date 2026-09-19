@@ -1,0 +1,23 @@
+---
+import Feedback from '@/components/common/form/Feedback.astro';
+import type { ValidatorKey } from 'ui/behaviors'; // ajustá el path real de tu módulo de validación
+
+interface Props extends astroHTML.JSX.InputHTMLAttributes {
+    class?: string;
+    label: string;
+    messages?: Record<string, string>;
+    validate: ValidatorKey;
+}
+
+const { id, class: className, label, messages = {}, validate, ...inputAttributes } = Astro.props;
+---
+
+<div class="form-field">
+    <div class="flex items-center">
+        <input id={id} type="checkbox" class:list={["field-input", className]} {...inputAttributes} data-field-input data-validate={validate} />
+        <label for={id} class="select-none ms-2 text-sm text-neutral-600">{label}</label>
+    </div>
+
+    <Feedback type="field" messages={messages} />
+
+</div>
