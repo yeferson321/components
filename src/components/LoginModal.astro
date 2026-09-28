@@ -16,7 +16,7 @@ interface Props {
 const { translations } = Astro.props;
 ---
 
-<Modal modalId="login-modal" verticalPosition="center" overlayColor="rgba(0,0,0,0.5)" offset="2rem">
+<Modal id="login-modal" verticalPosition="center" overlayColor="rgba(0,0,0,0.5)" offset="2rem" unmount={true}>
 					
     <div class="px-8 pt-12 pb-8 sm:my-8 sm:w-full sm:max-w-lg rounded-3xl border border-neutral-200/70 bg-white">
 						
@@ -65,6 +65,7 @@ const { translations } = Astro.props;
     </div>
 
 </Modal>
+
 
 <!-- <script>
 	const multiStepElement = document.querySelector<HTMLDivElement>("[data-multi-step]");

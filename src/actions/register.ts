@@ -2,6 +2,7 @@ import { ActionError, defineAction } from 'astro:actions';
 import { z } from 'astro/zod';
 import { createServerClient } from '@/lib/supabase';
 import PBKDF2Lite from 'pbkdf2-lite';
+
 import { normalize, NAME_PATTERN, REPEATED_CHARS_PATTERN, LETTER_PATTERN, NUMBER_PATTERN, SPECIAL_PATTERN, WHITESPACE_PATTERN, fieldLimits } from 'ui/behaviors';
 
 const nameSchema = z
@@ -52,27 +53,22 @@ export const register = defineAction({
 
         const { data, error } = await supabase.from('accounts').insert(account)
 
-        console.log("error", error)
-
         if (error) {
             throw new ActionError({
                 code: error.code === '23505' ? 'CONFLICT' : 'INTERNAL_SERVER_ERROR',
                 message: 'BAD_REQUEST',
             });
         }
-        // const sesionId = crypto.randomUUID();
 
-        // context.cookies.set('sesion_id', sesionId, {
-        //     maxAge: 3600,      // 1 hora, en segundos
-        //     path: '/',
-        //     httpOnly: true,
-        //     secure: ENV.PROD,
-        //     sameSite: 'lax',
-        // });
+        const sesionId = crypto.randomUUID();
 
-        // const cookie = context.cookies.get('sesion_id');
-
-        // console.log("hola", cookie, ENV.PROD)
+        context.cookies.set('sesion_id', sesionId, {
+            maxAge: 3600,      // 1 hora, en segundos
+            path: '/',
+            httpOnly: true,
+            secure: import.meta.env.PROD,
+            sameSite: 'lax',
+        });
 
         return {
             success: true,

@@ -1,0 +1,160 @@
+---
+/*
+ * Sidebar accesible.
+ * - Abrir: botón con `data-sidebar-open="<id>"` o evento `sidebar:show:<id>`.
+ * - Cerrar: `data-sidebar-close` dentro del sidebar, clic en el overlay, Escape o evento `sidebar:hide:<id>`.
+ * - Foco inicial: elemento con `data-sidebar-autofocus` (si no hay, el propio sidebar).
+ */
+
+interface Props {
+    id: string;
+    class?: string;
+    overlayColor?: string;
+    /** Espacio entre el panel y el borde de la pantalla (se aplica como `padding`). */
+    offset?: string;
+    horizontalPosition?: 'left' | 'right';
+    /** Quita el sidebar del DOM mientras está cerrado. @default false */
+    unmount?: boolean;
+};
+
+const { id, class: className, overlayColor, offset, horizontalPosition = 'right', unmount = false } = Astro.props;
+---
+           
+<div id={id} class:list={["sidebar", className]} data-sidebar-id={id} data-state="closed" data-horizontal={horizontalPosition} data-unmount={unmount} tabindex="-1" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="sidebar-overlay" style={overlayColor && `--overlay-color: ${overlayColor};`}></div>
+    <div class="sidebar-wrapper">
+        <div class="sidebar-panel" style={offset && `--offset: ${offset};`}>
+            <div class="sidebar-content">
+                <slot/>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.sidebar {
+    display: none;
+    position: relative;
+    z-index: 40;
+}
+
+.sidebar:not([data-state="closed"]) {
+    display: block;
+}
+
+.sidebar-overlay {
+    position: fixed;
+    inset: 0px;
+    opacity: 0;
+    background-color: var(--overlay-color);
+    backdrop-filter: blur(1px);
+    transition: opacity var(--transition-duration, 300ms) var(--transition-timing, ease-in-out);
+}
+
+.sidebar[data-state="open"] > .sidebar-overlay { opacity: 1; }
+
+/* No captura clics: así llegan al overlay y solo el contenido los recibe. */
+.sidebar-wrapper {
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+}
+
+.sidebar-panel {
+    position: fixed;
+    inset-block: 0px;
+    display: flex;
+    max-width: 100%;
+}
+
+.sidebar[data-horizontal="right"] .sidebar-panel { right: 0; padding-left: var(--offset); }
+.sidebar[data-horizontal="left"] .sidebar-panel { left: 0; padding-right: var(--offset); }
+
+.sidebar-content {
+    pointer-events: auto;
+    display: flex;
+    width: fit-content;     
+    opacity: 0;
+    transform: translateX(var(--translateX));
+    transition: 
+        opacity var(--transition-duration, 300ms) var(--transition-timing, ease-in-out), 
+        transform var(--transition-duration, 300ms) var(--transition-timing, ease-in-out);
+}
+
+.sidebar[data-horizontal="left"] .sidebar-content { --translateX: -100%; }
+.sidebar[data-horizontal="right"] .sidebar-content { --translateX: 100%; }
+
+.sidebar[data-state="open"] .sidebar-content {
+    opacity: 1;
+    transform: translateX(0);
+}
+</style>
+
+<script>
+    import { appendChildElement, removeElement, trapFocus } from '#/utils/overlay';
+
+    const setupSidebar = (sidebarElement: HTMLDivElement) => {
+        const { sidebarId, unmount } = sidebarElement.dataset; 
+        if (!sidebarId) throw new Error('Missing "data-sidebar-id" attribute on Sidebar component');
+
+        const overlayElement = sidebarElement.querySelector<HTMLDivElement>(".sidebar-overlay");
+        if (!overlayElement) throw new Error(`Sidebar "${sidebarId}": component internal element(s) .sidebar-overlay not found.`);
+
+        unmount === "true" ? removeElement(sidebarElement) : appendChildElement(sidebarElement);
+
+        const openButtonElement = document.querySelector<HTMLButtonElement>(`[data-sidebar-open="${sidebarId}"]`);
+        const closeButtonElement = sidebarElement.querySelector<HTMLButtonElement>("[data-sidebar-close]");
+        const focusableElement = sidebarElement.querySelector<HTMLElement>("[data-sidebar-autofocus]");
+        let lastFocusedElement: HTMLElement | null = null;
+
+        const setAccessibility = (isHidden: boolean) => {
+            sidebarElement.dataset.state = isHidden ? "closed" : "open";
+            sidebarElement.setAttribute("aria-hidden", String(isHidden));
+            openButtonElement?.setAttribute("aria-expanded", String(!isHidden));
+        };
+
+        const handleKeyboard = (event: KeyboardEvent) => {
+            if (event.key === "Escape") return hideSidebar();
+            if (event.key === "Tab") trapFocus(sidebarElement, event);
+        };
+
+        const showSidebar = () => {
+            if (sidebarElement.dataset.state !== "closed") return;
+            // Se guarda antes de abrir, para restaurarlo al cerrar.
+            lastFocusedElement = document.activeElement as HTMLElement;
+
+            if (unmount === "true") appendChildElement(sidebarElement);
+            sidebarElement.dataset.state = "opening";
+
+            requestAnimationFrame(() => {
+                setAccessibility(false);
+                sidebarElement.addEventListener("keydown", handleKeyboard); 
+                (focusableElement || sidebarElement).focus();
+            });
+        };
+
+        const hideSidebar = () => {
+            if (sidebarElement.dataset.state !== "open") return;
+
+            sidebarElement.removeEventListener("keydown", handleKeyboard);
+            // El foco sale antes de marcar aria-hidden="true".
+            lastFocusedElement?.focus();
+            sidebarElement.dataset.state = "closing";
+
+            // Resuelve al instante si no hay animaciones en curso.
+            Promise.allSettled(sidebarElement.getAnimations({ subtree: true }).map(({ finished }) => finished)).then(() => {
+                setAccessibility(true);
+                if (unmount === "true") removeElement(sidebarElement);
+            });
+        };
+
+        overlayElement.addEventListener("click", hideSidebar);
+        openButtonElement?.addEventListener("click", showSidebar);
+        closeButtonElement?.addEventListener("click", hideSidebar);
+        window.addEventListener(`sidebar:show:${sidebarId}`, showSidebar);
+        window.addEventListener(`sidebar:hide:${sidebarId}`, hideSidebar);
+    };
+
+    document.querySelectorAll<HTMLDivElement>(".sidebar").forEach(setupSidebar);
+</script>

@@ -117,8 +117,8 @@
                     "submit": "Crear cuenta"
                 },
                 "error": {
-                    "SERVER_ERROR": "Hubo un problema, inténtelo de nuevo.",
-                    "BAD_REQUEST": "Alguno de sus datos es incorrecto."
+                    "CONFLICT": "Alguno de sus datos es incorrecto.",
+                    "INTERNAL_SERVER_ERROR": "Hubo un problema, inténtelo de nuevo."
                 }
             }
         },

@@ -3,7 +3,7 @@ interface Props {
     class?: string;
 };
 
-const { class: className = "" } = Astro.props;
+const { class: className } = Astro.props;
 ---
 
 <div class:list={["form-field", className]}>
@@ -15,8 +15,6 @@ const { class: className = "" } = Astro.props;
     import { validators } from '../behaviors/form/inputValidation';
     import { debounce } from '../utils/limitExecution';
 
-    // Parsea el data-messages del feedback. showMessage muestra por code (cacheado
-    // en activeCode); setOverride escribe texto ya resuelto e invalida ese cache.
     const createMessageHandler = (feedbackElement: HTMLElement | null) => {
         const rawMessages = feedbackElement?.dataset.messages;
         const messages: Record<string, string> = rawMessages ? JSON.parse(rawMessages) : {};
@@ -58,11 +56,7 @@ const { class: className = "" } = Astro.props;
         );
 
         const validate = (): FieldState => {
-            const { code, state, requirements } = validator({
-                value: inputElement.value,
-                validity: inputElement.validity,
-                properties,
-            });
+            const { code, state, requirements } = validator({ value: inputElement.value, validity: inputElement.validity, properties });
 
             fieldElement.dataset.state = state;
             showMessage(code);
@@ -80,8 +74,6 @@ const { class: className = "" } = Astro.props;
         // Expuestos en el DOM para que setupForm los use sin conocer setupField.
         fieldElement.validate = validate;
 
-        // code de servidor: busca en el diccionario propio del campo y, si no
-        // está, usa fallbackMessage (setupForm lo resuelve contra el form).
         fieldElement.setError = (code, fallbackMessage) => {
             fieldElement.dataset.state = "error";
             if (messages[code] !== undefined) return showMessage(code);

@@ -1,7 +1,7 @@
 ---
 import type { Translation } from '@/i18n/config';
 import { fieldLimits } from 'ui/behaviors';
-import { ButtonToggle } from 'ui/components';
+import { ToggleButton } from 'ui/components';
 import Input from '@/components/common/form/Input.astro';
 import InputCheckbox from '@/components/common/form/InputCheckbox.astro';
 import { IconCheckCircle, IconInformationCircle } from 'ui/icons/outline';
@@ -20,17 +20,17 @@ const { translations } = Astro.props;
 
 <form id="signup-form" class="mt-6 space-y-4">
 
-    <Input type="email" name="email" autocomplete="email" spellcheck="false" validate="email"
+    <Input id="signup-email" type="email" name="email" autocomplete="email" spellcheck="false" validate="email"
         class="peer block w-full py-2.5 px-4 border rounded-2xl border-neutral-600 text-lg text-neutral-600 bg-transparent transition-colors duration-300 focus:border-blue-500 focus:outline-none" minlength={fieldLimits.email.minLength} maxlength={fieldLimits.email.maxLength}
         label={translations.form.fields.email.label} messages={translations.form.fields.email.validation} required
     />
 
-    <Input type="text" name="name" autocomplete="name" spellcheck="false" validate="name"
+    <Input id="signup-name" type="text" name="name" autocomplete="name" spellcheck="false" validate="name"
         class="peer block w-full py-2.5 px-4 border rounded-2xl border-neutral-600 text-lg text-neutral-600 bg-transparent transition-colors duration-300 focus:border-blue-500 focus:outline-none" minlength={fieldLimits.name.minLength} maxlength={fieldLimits.name.maxLength}
         label={translations.form.fields.name.label} messages={translations.form.fields.name.validation} required
     />
 
-    <Input type="password" name="password" autocomplete="new-password" validate="new-password"
+    <Input id="signup-password" type="password" name="password" autocomplete="new-password" validate="new-password"
         class="peer block w-full py-2.5 px-4 border rounded-2xl border-neutral-600 text-lg text-neutral-600 bg-transparent transition-colors duration-300 focus:border-blue-500 focus:outline-none" minlength={fieldLimits.password.minLength} maxlength={fieldLimits.password.maxLength}
         label={translations.form.fields.newPassword.label} messages={translations.form.fields.newPassword.validation} required
         passwordToggle={{
@@ -71,25 +71,25 @@ const { translations } = Astro.props;
         label="Confirmas que tienes al menos 18 años." messages={{ REQUIRED: "Debes confirmar que eres mayor de edad." }} required
     /> -->
 
-    <!-- <Feedback type="form" messages={messages} /> -->
-
     <Feedback type="form" messages={translations.form.error} />
 
-    <!-- <div class="form-feedback flex items-start mx-2 text-orange-400"> 
-        <IconInformationCircle stroke-width="1.6" width="14" height="14" class="shrink-0 me-1 mt-0.5" aria-hidden="true" /> 
-        <span class="form-feedback-message text-sm" aria-live="polite" data-feedback="form" data-state="valid"></span> 
-    </div> -->
+    <ToggleButton id="signup-submit" type="submit" class="w-full h-11 px-4 rounded-3xl flex items-center justify-center text-white bg-blue-500 transition-opacity duration-300 ease-in-out disabled:opacity-70 disabled:cursor-not-allowed disabled:pointer-events-none" ariaLabelActive="Enviando formulario" ariaLabelInactive="Enviar formulario" mode="busy" disabled>
 
-    <ButtonToggle toggleId="submit" type="submit" class="w-full h-11 px-2 rounded-3xl flex items-center justify-center text-lg font-medium text-white bg-blue-500 transition-opacity duration-300 ease-in-out disabled:opacity-70 disabled:cursor-not-allowed disabled:pointer-events-none" data-toggle="submit" ariaLabelActive="" ariaLabelInactive="" disabled>
-        
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icons-tabler-outline icon-tabler-loader-4 size-6 animate-spin hidden" data-buttontoggle-active>
-        	<path stroke="none" d="M0 0h24v24H0z" fill="none" />
-        	<path d="M12 21v-3m6.36 .36l-2.12 -2.12m4.76 -4.24h-3m.36 -6.36l-2.12 2.12m-4.24 -4.76v3m-6.36 -.36l2.12 2.12m-3.76 4.24h2m1 4.95l.71 -.71" />
+        <svg viewBox="0 0 48 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="size-8 hidden" data-toggle-button-active>
+            <circle cx="8" cy="12" r="3" fill="currentColor">
+                <animate attributeName="r" values="3;6;3" dur="1.2s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="24" cy="12" r="3" fill="currentColor">
+                <animate attributeName="r" values="3;6;3" dur="1.2s" begin="0.2s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="40" cy="12" r="3" fill="currentColor">
+                <animate attributeName="r" values="3;6;3" dur="1.2s" begin="0.4s" repeatCount="indefinite"/>
+            </circle>
         </svg>
+    
+        <span class="text-lg font-medium" data-toggle-button-inactive>{translations.form.actions.submit}</span>
 
-        <span class="" data-buttontoggle-inactive>{translations.form.actions.submit}</span>
-
-    </ButtonToggle>
+    </ToggleButton>
         			    
 </form>
 
@@ -105,37 +105,27 @@ const { translations } = Astro.props;
     };
 
     const form = document.getElementById('signup-form') as HTMLFormElement | null;
-    const submitButton = form?.querySelector<HTMLButtonElement>('button[type="submit"]');
 
     if (form) {
         const { setFormError, setFieldsError } = setupForm<SignUpForm>(form, async (data) => {
 
-            // const { data: result, error } = await actions.register(data);
-            const { error } = await actions.register(data);
+            const hola = await actions.register(data);
 
-            // console.log("data", data, "error", error)
+            console.log(hola)
 
-            if (error) {
-                // if (error.code === "BAD_REQUEST") {
-                //     setFormError("BAD_REQUEST");
-                // } else {
-                    // setFieldsError("BAD_REQUEST");
-                    setFieldsError({ email: "BAD_REQUEST" });
-                // }
+            if (hola.error) {
+                
+                if (hola.error.code === "CONFLICT") {
+                    setFieldsError({ email: "CONFLICT" });
+                } else {
+                    setFormError("INTERNAL_SERVER_ERROR");
+                }
 
-                submitButton?.dispatchEvent(new CustomEvent("button-toggle:deactivate:submit", { bubbles: true }));
+                window.dispatchEvent(new CustomEvent("toggle-button:deactivate:signup-submit"));
                 return;
             }
+
+            window.location.href = "/profile";
         });
     }
 </script>
-
-<!-- <style>
-.form-feedback {
-    display: none;
-}
-
-.form-feedback:has(.form-feedback-message[data-state="error"]) {
-    display: flex;
-}
-</style> -->

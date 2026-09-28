@@ -16,20 +16,15 @@ const isFieldOk = (field: FormFieldElement): boolean => {
     return inputElement?.required ? state === "valid" : state !== "invalid";
 };
 
-export const setupForm = <T extends Record<string, string>>(
-    form: HTMLFormElement,
-    onValidSubmit: (data: T) => void | Promise<void>
-) => {
+export const setupForm = <T extends Record<string, string>>(form: HTMLFormElement, onValidSubmit: (data: T) => void | Promise<void>) => {
     const submitButton = form.querySelector<HTMLButtonElement>('button[type="submit"]');
     const formFeedback = form.querySelector<HTMLElement>(`[data-feedback="form"]`);
     const formMessages = parseMessages(formFeedback);
     const fields = Array.from(form.querySelectorAll<FormFieldElement>(".form-field"));
-    const findFieldByName = (name: string) =>
-        fields.find((field) => field.querySelector<HTMLInputElement>("[data-field-input]")?.name === name);
+
+    const findFieldByName = (name: string) => fields.find((field) => field.querySelector<HTMLInputElement>("[data-field-input]")?.name === name);
 
     let isSubmitting = false;
-    // "generic": un mismo code para todos los campos (revalida todo al primer input).
-    // "targeted": code por campo (revalida solo el campo que se edita).
     let fieldsErrorMode: "generic" | "targeted" | null = null;
 
     const updateSubmitState = () => {
@@ -69,9 +64,6 @@ export const setupForm = <T extends Record<string, string>>(
         updateSubmitState();
     };
 
-    // string: mismo code para todos los campos (cae a translations.form.error).
-    // { [name]: code }: apunta a campos puntuales — cada uno resuelve primero
-    // contra su propio diccionario y, si no está, contra translations.form.error.
     const setFieldsError = (errors: string | Record<string, string>) => {
         if (typeof errors === "string") {
             fieldsErrorMode = "generic";

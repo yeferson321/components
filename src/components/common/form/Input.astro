@@ -1,10 +1,11 @@
 ---
-import { ButtonToggle, FormField } from 'ui/components';
+import { ToggleButton, FormField } from 'ui/components';
 import { IconEye, IconEyeSlash } from 'ui/icons/outline';
 import Feedback from '@/components/common/form/Feedback.astro';
-import type { ValidatorKey } from 'ui/behaviors'; // ajustá el path real de tu módulo de validación
+import type { ValidatorKey } from 'ui/behaviors';
 
 interface Props extends astroHTML.JSX.InputHTMLAttributes {
+    id: string;
     class?: string;
     label?: string;
     messages?: Record<string, string>;
@@ -15,7 +16,7 @@ interface Props extends astroHTML.JSX.InputHTMLAttributes {
     };
 };
 
-const { class: className, type, label, messages = {}, validate, passwordToggle, ...inputAttributes } = Astro.props;
+const { id, class: className, type, label, messages = {}, validate, passwordToggle, ...inputAttributes } = Astro.props;
 
 const showPasswordToggle = type === 'password' && passwordToggle;
 ---
@@ -24,9 +25,9 @@ const showPasswordToggle = type === 'password' && passwordToggle;
 
     <div class="relative">
         
-        <input type={type} class:list={["field-input", className ]} placeholder=" " {...inputAttributes} data-field-input data-validate={validate}/>
+        <input id={id} type={type} class:list={["field-input", className ]} placeholder=" " {...inputAttributes} data-field-input data-validate={validate}/>
         
-        <label class="field-label absolute left-3 px-1 pointer-events-none duration-300 top-0 -translate-y-1/2 text-base text-neutral-600 bg-white
+        <label for={id} class="field-label absolute left-3 px-1 pointer-events-none duration-300 top-0 -translate-y-1/2 text-base text-neutral-600 bg-white
             peer-placeholder-shown:top-1/2
             peer-placeholder-shown:-translate-y-1/2
             peer-placeholder-shown:text-lg
@@ -40,11 +41,13 @@ const showPasswordToggle = type === 'password' && passwordToggle;
         </label>
 
         { showPasswordToggle && (
-            <ButtonToggle toggleId="password" type="button" class="absolute right-4 top-1/2 -translate-y-1/2" data-toggle="password" ariaLabelActive={passwordToggle.hideLabel} ariaLabelInactive={passwordToggle.showLabel}>
-                <IconEye stroke-width="1.6" width="20" height="20" class="stroke-neutral-600 hidden" data-buttontoggle-active />
-                <IconEyeSlash stroke-width="1.6" width="20" height="20" class="stroke-neutral-600" data-buttontoggle-inactive/>
-            </ButtonToggle>
+            <ToggleButton id={`${id}-toggle-button`} class="absolute right-4 top-1/2 -translate-y-1/2" ariaLabelActive={passwordToggle.hideLabel} ariaLabelInactive={passwordToggle.showLabel}>
+                <IconEye stroke-width="1.6" width="20" height="20" class="stroke-neutral-600 hidden" data-toggle-button-active />
+                <IconEyeSlash stroke-width="1.6" width="20" height="20" class="stroke-neutral-600" data-toggle-button-inactive/>
+            </ToggleButton>
         )}
+
+        
     </div>
 
     <Feedback type="field" messages={messages} />
@@ -54,18 +57,18 @@ const showPasswordToggle = type === 'password' && passwordToggle;
 </FormField>
 
 <script>
-    const setupInput = (toggleButton: HTMLButtonElement) => {
-        const inputElement = toggleButton.closest('.form-field')?.querySelector<HTMLInputElement>('[data-field-input]');
-        if (!inputElement) return;
+    const setupInput = (fieldElement: HTMLDivElement) => { 
+        const passwordInput = fieldElement.querySelector<HTMLInputElement>('input[type="password"]');
+        const toggleButton = fieldElement.querySelector<HTMLButtonElement>('[id$="-toggle-button"]');
 
-        toggleButton.addEventListener("button-toggle:change", (event) => {
+        toggleButton?.addEventListener("toggle-button:change", (event) => {
             const { active } = (event as CustomEvent<{ active: boolean }>).detail;
-            inputElement.type = active ? "text" : "password";
+            console.log(active)
+            if (passwordInput) passwordInput.type = active ? "text" : "password";
         });
     };
-
-
-    document.querySelectorAll<HTMLButtonElement>('[data-toggle="password"]').forEach(setupInput);
+    
+    document.querySelectorAll<HTMLDivElement>(".form-field").forEach(setupInput);
 </script>
 
 <style is:global>

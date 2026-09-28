@@ -1,9 +1,14 @@
 ---
 import { resolveLocale, getI18n } from '@/i18n/config';
 import Layout from '@/layouts/Layout.astro';
+import { Sidebar } from 'ui/components';
 import Welcome from '@/components/Welcome.astro';
 
 import { IconHeart } from 'ui/icons/outline';
+
+import { IconXmark } from 'ui/icons/outline';
+import { IconGoogle, IconApple } from 'ui/icons/brands/color';
+
 
 import LoginModal from '@/components/LoginModal.astro';
 
@@ -23,5 +28,32 @@ const t = await getI18n(locale);
 	</button>
 
 	<LoginModal translations={t.loginModal} />
+
+	<button type="button" class="p-2.5 rounded-full bg-blue-500/20 hover:bg-blue-500/30 transition-colors duration-300 ease-in-out" data-sidebar-open="login-sidebar" aria-label="Abrir sidebar de inicio de sesión" aria-haspopup="dialog" aria-expanded="false" aria-controls="login-sidebar">
+		<IconHeart stroke-width="2" width="26" height="26" class="stroke-blue-500"/>
+	</button>
+
+	
+	<Sidebar id="login-sidebar" overlayColor="rgba(0,0,0,0.5)" offset="2rem" horizontalPosition="right">
+
+		<div class="bg-white">
+		
+	    <div class="mt-4 flex gap-3">
+	    	<button class="flex-1 flex items-center justify-center h-11 px-2 rounded-2xl border border-neutral-200/70 bg-neutral-100" aria-label={t.loginModal.social.google.ariaLabel}>
+	    	    <IconGoogle width="24" height="24"/>
+	    	</button>
+
+	    	<button class="flex-1 flex items-center justify-center h-11 px-2 rounded-2xl border border-neutral-200/70  bg-neutral-100" aria-label={t.loginModal.social.apple.ariaLabel}>
+	    	    <IconApple width="24" height="24"/>
+	    	</button>
+	    </div>
+
+		<button type="button" class="absolute top-4 inset-e-7" data-sidebar-close aria-label={t.loginModal.close.ariaLabel}>
+			<IconXmark stroke-width="1.8" width="28" height="28" class="stroke-neutral-600"/>
+		</button>
+
+		</div>
+
+	</Sidebar>
 	
 </Layout>

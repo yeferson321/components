@@ -1,0 +1,57 @@
+---
+interface Props  {
+    id: string;
+    type?: "button" | "reset" | "submit" | null | undefined;
+    class?: string;
+    ariaLabelActive?: string;
+    ariaLabelInactive?: string;
+    mode?: "toggle" | "busy";
+    disabled?: boolean;
+};
+
+const { id, type = "button", class: className, ariaLabelActive, ariaLabelInactive, mode = "toggle", ...attributes } = Astro.props;
+const ariaStateAttr = mode === "busy" ? { "aria-busy": "false" as const } : { "aria-pressed": "false" as const };
+---
+
+<button id={id} type={type} class:list={["toggle-button", className]} data-toggle-button-id={id} data-state="inactive" data-aria-label-active={ariaLabelActive} data-aria-label-inactive={ariaLabelInactive} {...attributes} {...ariaStateAttr} aria-label={ariaLabelInactive}>        
+    <slot />
+</button>
+
+<script>
+    const setupToggleButton = (buttonElement: HTMLButtonElement) => {
+        const { toggleButtonId, ariaLabelActive = "", ariaLabelInactive = "" } = buttonElement.dataset;
+
+        if (!toggleButtonId) throw new Error('Missing "data-toggle-button-id" attribute on ToggleButton component');
+
+        delete buttonElement.dataset.ariaLabelActive;
+        delete buttonElement.dataset.ariaLabelInactive;
+        const ariaStateAttribute = buttonElement.hasAttribute("aria-busy") ? "aria-busy" : "aria-pressed";
+
+        const activeElement = buttonElement.querySelector<HTMLElement>("[data-toggle-button-active]");
+        const inactiveElement = buttonElement.querySelector<HTMLElement>("[data-toggle-button-inactive]");
+
+        const setAccessibility = (isActive: boolean) => {
+            buttonElement.setAttribute("aria-label", isActive ? ariaLabelActive : ariaLabelInactive);
+            buttonElement.setAttribute(ariaStateAttribute, String(isActive));
+        };
+
+        const setState = (nextIsActive: boolean) => {
+            buttonElement.dataset.state = nextIsActive ? "active" : "inactive";
+            setAccessibility(nextIsActive);
+
+            activeElement?.classList.toggle("hidden", !nextIsActive);
+            inactiveElement?.classList.toggle("hidden", nextIsActive);
+
+            buttonElement.dispatchEvent(new CustomEvent("toggle-button:change", { detail: { active: nextIsActive }, bubbles: true }));
+        };
+
+        const toggleVisibility = () => setState(buttonElement.dataset.state !== "active");
+
+        buttonElement.addEventListener("click", toggleVisibility);
+        window.addEventListener(`toggle-button:toggle:${toggleButtonId}`, toggleVisibility);
+        window.addEventListener(`toggle-button:activate:${toggleButtonId}`, () => setState(true));
+        window.addEventListener(`toggle-button:deactivate:${toggleButtonId}`, () => setState(false));
+    };
+
+    document.querySelectorAll<HTMLButtonElement>(".toggle-button").forEach(setupToggleButton);
+</script>
