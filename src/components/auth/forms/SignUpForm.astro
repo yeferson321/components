@@ -111,8 +111,6 @@ const { translations } = Astro.props;
 
             const hola = await actions.register(data);
 
-            console.log(hola)
-
             if (hola.error) {
                 
                 if (hola.error.code === "CONFLICT") {
