@@ -106,24 +106,63 @@ const { translations } = Astro.props;
 
     const form = document.getElementById('signup-form') as HTMLFormElement | null;
 
-    if (form) {
-        const { setFormError, setFieldsError } = setupForm<SignUpForm>(form, async (data) => {
+    console.log(import.meta.env.PUBLIC_API_TOKEN)
 
-            const hola = await actions.register(data);
+     if (form) {
+        const { setFieldsError, setFormError } = setupForm<SignUpForm>(form, async (data) => {
+            let res: Response;
 
-            if (hola.error) {
-                
-                if (hola.error.code === "CONFLICT") {
-                    setFieldsError({ email: "CONFLICT" });
-                } else {
-                    setFormError("INTERNAL_SERVER_ERROR");
-                }
-
-                window.dispatchEvent(new CustomEvent("toggle-button:deactivate:signup-submit"));
+            try {
+                res = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': import.meta.env.PUBLIC_API_TOKEN
+                    },
+                    body: JSON.stringify(data),
+                });
+            } catch {
+                // error de red: el servidor no respondió
+                setFormError('INTERNAL_SERVER_ERROR');
+                window.dispatchEvent(new CustomEvent('toggle-button:deactivate:signup-submit'));
                 return;
             }
 
-            window.location.href = "/profile";
+            if (!res.ok) {
+                if (res.status === 409) {
+                    setFieldsError({ email: 'CONFLICT' });
+                } else {
+                    setFormError('INTERNAL_SERVER_ERROR');
+                }
+
+                window.dispatchEvent(new CustomEvent('toggle-button:deactivate:signup-submit'));
+                return;
+            }
+
+            window.location.href = '/profile';
         });
     }
+
+    // if (form) {
+    //     const { setFieldsError, setFormError } = setupForm<SignUpForm>(form, async (data) => {
+
+    //         const { error } = await actions.register(data);
+
+    //         console.log("error completo:", error);
+
+    //         if (error) {
+                
+    //             if (error.code === "CONFLICT") {
+    //                 setFieldsError({ email: "CONFLICT" });
+    //             } else {
+    //                 setFormError("INTERNAL_SERVER_ERROR");
+    //             }
+
+    //             window.dispatchEvent(new CustomEvent("toggle-button:deactivate:signup-submit"));
+    //             return;
+    //         }
+
+    //         window.location.href = "/profile";
+    //     });
+    // }
 </script>

@@ -107,5 +107,5 @@ export const setupForm = <T extends Record<string, string>>(form: HTMLFormElemen
 
     updateSubmitState();
 
-    return { setFormError, setFieldsError };
+    return { setFieldsError, setFormError };
 };
