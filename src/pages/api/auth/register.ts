@@ -6,6 +6,9 @@ import { createServerClient } from '@/lib/supabase';
 import PBKDF2Lite from 'pbkdf2-lite';
 import { normalize, NAME_PATTERN, REPEATED_CHARS_PATTERN, LETTER_PATTERN, NUMBER_PATTERN, SPECIAL_PATTERN, WHITESPACE_PATTERN, fieldLimits } from 'ui/behaviors';
 
+export const prerender = false;
+
+
 const withNormalize = <T extends z.ZodType>(schema: T) => z.preprocess((value) => (typeof value === 'string' ? normalize(value) : value), schema);
 
 const registerSchema = z.object({
