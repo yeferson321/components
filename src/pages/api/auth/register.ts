@@ -8,7 +8,6 @@ import { normalize, NAME_PATTERN, REPEATED_CHARS_PATTERN, LETTER_PATTERN, NUMBER
 
 export const prerender = false;
 
-
 const withNormalize = <T extends z.ZodType>(schema: T) => z.preprocess((value) => (typeof value === 'string' ? normalize(value) : value), schema);
 
 const registerSchema = z.object({
@@ -43,18 +42,29 @@ const registerSchema = z.object({
 const supabase = createServerClient();
 const hasher = new PBKDF2Lite();
 
+const allowedOrigins = new Set([
+    import.meta.env.PROD_ORIGIN, ...(import.meta.env.DEV ? [import.meta.env.DEV_ORIGIN] : []),
+]);
+
 export const POST: APIRoute = async ({ request, cookies }) => {
+
+    const origin = request.headers.get("Origin");
+
+    if (!origin || !allowedOrigins.has(origin)) {
+        return Response.json({ success: false, error: 'Forbidden' }, { status: 403 });
+    }
+
+
+    const authorization = request.headers.get("Authorization");
+    const [scheme, apiKey] = authorization?.split(" ", 2) ?? [];
+
+    if (scheme !== "Bearer" || apiKey !== import.meta.env.PUBLIC_API_KEY) {
+        return Response.json({ success: false, error: "Unauthorized" } , { status: 401 });
+
+    }
+    
     const body = await request.json().catch(() => null);
     const parsed = registerSchema.safeParse(body);
-
-    const apiKey = request.headers.get('Authorization') ?? '';
-
-    console.log('API Key:', apiKey);
-// if (!safeEqual(apiKey, import.meta.env.REGISTER_API_KEY)) {
-//     return json({ success: false, error: 'UNAUTHORIZED' }, 401);
-// }
-
-
 
     if (!parsed.success) {
         return Response.json({ success: false, error: 'INVALID_INPUT' }, { status: 400 });
@@ -79,7 +89,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         path: '/',
         httpOnly: true,
         secure: import.meta.env.PROD,
-        sameSite: 'lax',
+        sameSite: 'strict',
     });
 
     return Response.json({ success: true }, { status: 201 });
