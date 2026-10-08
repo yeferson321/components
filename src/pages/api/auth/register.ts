@@ -5,6 +5,7 @@ import { z } from 'astro/zod';
 import { createServerClient } from '@/lib/supabase';
 import PBKDF2Lite from 'pbkdf2-lite';
 import { normalize, NAME_PATTERN, REPEATED_CHARS_PATTERN, LETTER_PATTERN, NUMBER_PATTERN, SPECIAL_PATTERN, WHITESPACE_PATTERN, fieldLimits } from 'ui/behaviors';
+import { verifyApiToken } from '@/lib/jwt';
 
 export const prerender = false;
 
@@ -47,21 +48,24 @@ const allowedOrigins = new Set([
 ]);
 
 export const POST: APIRoute = async ({ request, cookies }) => {
-
     const origin = request.headers.get("Origin");
 
     if (!origin || !allowedOrigins.has(origin)) {
         return Response.json({ success: false, error: 'Forbidden' }, { status: 403 });
     }
 
-
     const authorization = request.headers.get("Authorization");
     const [scheme, apiKey] = authorization?.split(" ", 2) ?? [];
 
-    if (scheme !== "Bearer" || apiKey !== import.meta.env.PUBLIC_API_KEY) {
-        return Response.json({ success: false, error: "Unauthorized" } , { status: 401 });
+    console.log("Authorization header:", authorization);
 
+    if (!authorization || scheme !== "Bearer" || !(await verifyApiToken(apiKey, import.meta.env.API_KEY, import.meta.env.JWT_ENCRYPTION_KEY))) {
+        return Response.json({ success: false, error: "Unauthorized" } , { status: 401 });
     }
+
+    // if (scheme !== "Bearer" || apiKey !== import.meta.env.PUBLIC_API_KEY) {
+    //     return Response.json({ success: false, error: "Unauthorized" } , { status: 401 });
+    // }
     
     const body = await request.json().catch(() => null);
     const parsed = registerSchema.safeParse(body);

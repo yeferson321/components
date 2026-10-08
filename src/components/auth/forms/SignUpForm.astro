@@ -6,19 +6,24 @@ import Input from '@/components/common/form/Input.astro';
 import InputCheckbox from '@/components/common/form/InputCheckbox.astro';
 import { IconCheckCircle, IconInformationCircle } from 'ui/icons/outline';
 import Feedback from '@/components/common/form/Feedback.astro';
+import { createApiToken } from '@/lib/jwt';
 
 interface Props {
 	translations: Translation.SignUpForm;
 };
 
 const { translations } = Astro.props;
+
+const apiToken = await createApiToken(import.meta.env.API_KEY, import.meta.env.JWT_ENCRYPTION_KEY);
+
+console.log("apiToken:", apiToken);
 ---
 
 <h2 id="login-modal-title" class="text-center text-2xl font-medium text-neutral-800">{translations.title}</h2>
 
 <p class="mt-2 text-center text-base text-neutral-800">{translations.subtitle.text} <button type="button" class="underline text-neutral-600 font-medium" data-multistep-target="sign-in" aria-label="">{translations.subtitle.action}</button></p>
 
-<form id="signup-form" class="mt-6 space-y-4">
+<form id="signup-form" class="mt-6 space-y-4" data-api-token={apiToken}>
 
     <Input id="signup-email" type="email" name="email" autocomplete="email" spellcheck="false" validate="email"
         class="peer block w-full py-2.5 px-4 border rounded-2xl border-neutral-600 text-lg text-neutral-600 bg-transparent transition-colors duration-300 focus:border-blue-500 focus:outline-none" minlength={fieldLimits.email.minLength} maxlength={fieldLimits.email.maxLength}
@@ -105,10 +110,9 @@ const { translations } = Astro.props;
     };
 
     const form = document.getElementById('signup-form') as HTMLFormElement | null;
+    const apiToken = form?.dataset.apiToken;
 
-    // console.log("form", import.meta.env.PUBLIC_API_KEY);
-
-     if (form) {
+    if (form) {
         const { setFieldsError, setFormError } = setupForm<SignUpForm>(form, async (data) => {
             let res: Response;
 
@@ -117,7 +121,7 @@ const { translations } = Astro.props;
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
-                        "Authorization": `Bearer ${import.meta.env.PUBLIC_API_KEY}`,
+                        "Authorization": `Bearer ${apiToken}`,
                     },
                     body: JSON.stringify(data),
                 });
