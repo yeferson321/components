@@ -50,6 +50,10 @@ const allowedOrigins = new Set([
 export const POST: APIRoute = async ({ request, cookies }) => {
     const origin = request.headers.get("Origin");
 
+    const token = cookies.get('api_token')?.value;
+
+    console.log("token", token);
+
     if (!origin || !allowedOrigins.has(origin)) {
         return Response.json({ success: false, error: 'Forbidden' }, { status: 403 });
     }
@@ -68,6 +72,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     // }
     
     const body = await request.json().catch(() => null);
+
+        console.log("body", body);
     const parsed = registerSchema.safeParse(body);
 
     if (!parsed.success) {

@@ -104,7 +104,7 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
         unmount === "true" ? removeElement(modalElement) : appendChildElement(modalElement);
 
         const openButtonElement = document.querySelector<HTMLButtonElement>(`[data-modal-open="${modalId}"]`);
-        const closeButtonElement = modalElement.querySelector<HTMLButtonElement>("[data-modal-close]");
+        const closeButtonElement = modalElement.querySelector<HTMLButtonElement>(`[data-modal-close="${modalId}"]`);
         const focusableElement = modalElement.querySelector<HTMLElement>("[data-modal-autofocus]");
         let lastFocusedElement: HTMLElement | null = null;
 

@@ -8,6 +8,7 @@ export { default as IconInformationCircle } from './IconInformationCircle.svg';
 export { default as IconLink } from './IconLink.svg';
 export { default as IconMapPin } from './IconMapPin.svg';
 export { default as IconPhoto } from './IconPhoto.svg';
+export { default as IconShieldCheck } from './IconShieldCheck.svg';
 export { default as IconSpeakerWave } from './IconSpeakerWave.svg';
 export { default as IconSquares2x2 } from './IconSquares2x2.svg';
 export { default as IconVerification } from './IconVerification.svg';

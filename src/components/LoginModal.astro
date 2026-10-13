@@ -16,7 +16,7 @@ interface Props {
 const { translations } = Astro.props;
 ---
 
-<Modal id="login-modal" verticalPosition="center" overlayColor="rgba(0,0,0,0.5)" offset="2rem" unmount={true}>
+<Modal id="login-modal" verticalPosition="center" overlayColor="rgba(0,0,0,0.5)" offset="2rem" unmount={false}>
 					
     <div class="px-8 pt-12 pb-8 sm:my-8 sm:w-full sm:max-w-lg rounded-3xl border border-neutral-200/70 bg-white">
 						
@@ -58,7 +58,7 @@ const { translations } = Astro.props;
             {translations.terms.text} <a href="/terms" class="underline font-medium">{translations.terms.termsOfUse}</a> • <a href="/privacy" class="underline font-medium">{translations.terms.privacyPolicy}</a>
         </p>
 	
-		<button type="button" class="absolute top-4 inset-e-7" data-modal-close aria-label={translations.close.ariaLabel}>
+		<button type="button" class="absolute top-4 inset-e-7" data-modal-close="login-modal" aria-label={translations.close.ariaLabel}>
 			<IconXmark stroke-width="1.8" width="28" height="28" class="stroke-neutral-600"/>
 		</button>
 					

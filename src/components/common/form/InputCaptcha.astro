@@ -1,0 +1,70 @@
+---
+import { CaptchaSlider, FormField, Modal } from 'ui/components';
+import { IconXmark } from 'ui/icons/outline';
+
+interface Props extends astroHTML.JSX.InputHTMLAttributes {
+    class?: string;
+    label: string;
+}
+
+const { id, class: className, label } = Astro.props;
+---
+
+<FormField>
+
+    <div class="relative">
+
+        <button type="button" id="captcha-trigger" class:list={["field-input", className ]} data-modal-open="captcha-modal" aria-label="Abrir modal de captcha" aria-haspopup="dialog" aria-expanded="false" aria-controls="captcha-modal">
+
+            <span class="w-5 h-5 flex items-center justify-center border rounded-md border-neutral-600 group-data-[verified=true]:border-emerald-700" aria-hidden="true">
+
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" width="16" height="16" stroke="currentColor" class="hidden group-data-[verified=true]:flex group-data-[verified=true]:stroke-emerald-700">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+
+            </span>
+
+            <span class="select-none text-base text-neutral-600">{label}</span>
+        </button>
+
+        <input type="checkbox" id={id} class="sr-only" tabindex="-1" aria-hidden="true">
+
+    </div>
+    
+</FormField>
+  
+<Modal id="captcha-modal" verticalPosition="center" overlayColor="rgba(0,0,0,0.5)" offset="2rem" unmount={false}>
+    <div class="px-8 pt-12 pb-8 sm:my-8 sm:w-full sm:max-w-lg rounded-3xl border border-neutral-200/70 bg-white">
+        <CaptchaSlider id="download-captcha" label="Arrastra la pieza hasta el hueco" handleLabel="Deslizar la pieza" protectedLabel="Protegido" messages={{ idle: "Desliza hasta que encaje", verifying: "Verificando…", verified: "Verificado", error: "No encajó. Inténtalo de nuevo" }}/>
+        <button type="button" class="absolute top-4 inset-e-7" data-modal-close="captcha-modal" aria-label="Cerrar modal de captcha">
+	    	<IconXmark stroke-width="1.8" width="28" height="28" class="stroke-neutral-600"/>
+	    </button>
+    </div>
+</Modal>
+
+<script>
+    const captchaSlider = document.getElementById('download-captcha') as HTMLInputElement | null;
+    const captchaTrigger = document.getElementById('captcha-trigger') as HTMLButtonElement | null;
+    const captchaCheckbox = document.getElementById('captcha-checkbox') as HTMLInputElement | null;
+
+    const setVerified = (verified: boolean) => {
+        if (captchaCheckbox) captchaCheckbox.checked = verified;
+        if (captchaTrigger) {
+            captchaTrigger.dataset.verified = String(verified);
+            captchaTrigger.disabled = verified; // ya verificado: no hace falta reabrir el modal
+        }
+    };
+
+    captchaSlider?.addEventListener('captcha:change', (event) => {
+        if (event.detail.state !== 'verified') return;
+
+        setVerified(true);
+        setTimeout(() => window.dispatchEvent(new Event("modal:hide:captcha-modal", { bubbles: true })), 500);
+    });
+</script>
+
+<style is:global>
+.form-field[data-state="valid"] .field-input {
+    border-color: oklch(50.8% 0.118 165.612);
+}
+</style>

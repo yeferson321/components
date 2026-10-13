@@ -13,6 +13,8 @@ const { translations, locale } = Astro.props;
 <html lang={locale}>
 	<head>
 		<!-- <ClientRouter /> -->
+		<link rel="preconnect" href="https://challenges.cloudflare.com" />
+
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -28,3 +30,4 @@ const { translations, locale } = Astro.props;
 <style>
 	@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@300..900&family=Righteous&display=swap');
 </style>
+

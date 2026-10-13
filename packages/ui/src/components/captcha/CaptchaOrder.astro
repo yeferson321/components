@@ -1,0 +1,121 @@
+---
+interface Props extends astroHTML.JSX.HTMLAttributes {
+    class?: string;
+    label: string;
+    figureLabel: string;
+    protectedLabel?: string;
+    messages: Record<"idle" | "verifying" | "verified" | "error", string>;
+};
+
+const { class: className = "", label, figureLabel, protectedLabel, messages, ...attrs } = Astro.props;
+---
+
+<div class:list={["captcha", className]} data-captcha-type="order" data-captcha="idle" {...attrs}>
+
+    <div class="captcha-card space-y-3 rounded-2xl border border-neutral-600 p-4 transition-colors duration-300">
+
+        <div class="flex items-center justify-between gap-2">
+            <span class="text-base text-neutral-800">{label}</span>
+            { protectedLabel && (
+                <span class="flex shrink-0 items-center gap-1 text-xs text-neutral-500">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 8.2-8 9-4.8-.8-8-4.5-8-9V6l8-3z"/></svg>
+                    {protectedLabel}
+                </span>
+            )}
+        </div>
+
+        <div class="captcha-scene relative h-[170px] rounded-xl">
+            { [0, 1, 2, 3].map((slot) => (
+                <button type="button" data-captcha-item aria-label={`${figureLabel} ${slot + 1}`} class="captcha-item absolute top-1/2 flex size-11 -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border-2 text-base font-semibold" style={`left: ${12.5 + slot * 25}%`}></button>
+            ))}
+        </div>
+
+        <p role="status" aria-live="polite" class="captcha-status flex min-h-5 items-center gap-2 text-sm text-neutral-600">
+            <span class="size-2 shrink-0 rounded-full bg-current" aria-hidden="true"></span>
+            <span data-captcha-status data-messages={JSON.stringify(messages)}>{messages.idle}</span>
+        </p>
+
+    </div>
+
+</div>
+
+<style>
+    .captcha-scene { background: linear-gradient(135deg, #f5f5f5, #eff6ff); }
+    .captcha-item { background: #dbeafe; border-color: #60a5fa; color: #1d4ed8; transition: background-color .2s, border-color .2s; }
+    .captcha-item[data-item="tapped"] { background: #3b82f6; border-color: #2563eb; color: #fff; }
+    .captcha-item[data-item="wrong"] { background: #fed7aa; border-color: #c2410c; color: #9a3412; }
+    .captcha-item[data-item="done"] { background: oklch(50.8% 0.118 165.612); border-color: oklch(50.8% 0.118 165.612); color: #fff; }
+
+    .captcha[data-captcha="verifying"] .captcha-card { border-color: #3b82f6; }
+    .captcha[data-captcha="verified"] .captcha-card { border-color: oklch(50.8% 0.118 165.612); }
+    .captcha[data-captcha="verified"] .captcha-status { color: oklch(50.8% 0.118 165.612); }
+    .captcha[data-captcha="error"] .captcha-card { border-color: oklch(75% 0.183 55.934); }
+    .captcha[data-captcha="error"] .captcha-status { color: #c2410c; }
+</style>
+
+<script>
+    import { createCaptcha, type CaptchaElement } from './captcha';
+
+    const SIZES = [24, 38, 52, 66]; // px, de la más pequeña a la más grande
+
+    const setupOrder = (root: CaptchaElement) => {
+        const items = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-captcha-item]'));
+        if (items.length !== SIZES.length) return;
+
+        let ranks: number[] = []; // ranks[slot] = posición correcta de esa figura (0 = la más pequeña)
+        let taps: number[] = []; // slots tocados, en orden
+        let timer = 0;
+
+        const paint = (done = false) => {
+            items.forEach((item, slot) => {
+                const index = done ? ranks[slot] : taps.indexOf(slot);
+                item.textContent = index >= 0 ? String(index + 1) : '';
+                item.dataset.item = done ? 'done' : index >= 0 ? 'tapped' : '';
+            });
+        };
+
+        const newRound = () => {
+            ranks = [0, 1, 2, 3];
+            for (let i = ranks.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [ranks[i], ranks[j]] = [ranks[j], ranks[i]];
+            }
+            taps = [];
+            items.forEach((item, slot) => {
+                item.style.width = `${SIZES[ranks[slot]]}px`;
+                item.style.height = `${SIZES[ranks[slot]]}px`;
+            });
+            paint();
+        };
+
+        const captcha = createCaptcha(root, () => {
+            clearTimeout(timer);
+            newRound();
+        });
+
+        items.forEach((item, slot) => {
+            item.addEventListener('click', () => {
+                if (root.dataset.captcha !== 'idle' || taps.includes(slot)) return;
+
+                taps.push(slot);
+                paint();
+
+                if (ranks[slot] !== taps.length - 1) {
+                    item.dataset.item = 'wrong';
+                    captcha.setState('error');
+                    timer = window.setTimeout(() => root.reset?.(), 1100);
+                } else if (taps.length === items.length) {
+                    captcha.setState('verifying');
+                    timer = window.setTimeout(() => {
+                        paint(true);
+                        captcha.setState('verified');
+                    }, 400);
+                }
+            });
+        });
+
+        newRound();
+    };
+
+    document.querySelectorAll<CaptchaElement>('[data-captcha-type="order"]').forEach(setupOrder);
+</script>

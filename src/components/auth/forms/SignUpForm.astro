@@ -4,9 +4,11 @@ import { fieldLimits } from 'ui/behaviors';
 import { ToggleButton } from 'ui/components';
 import Input from '@/components/common/form/Input.astro';
 import InputCheckbox from '@/components/common/form/InputCheckbox.astro';
-import { IconCheckCircle, IconInformationCircle } from 'ui/icons/outline';
+import { IconCheckCircle, IconInformationCircle, IconXmark } from 'ui/icons/outline';
+
 import Feedback from '@/components/common/form/Feedback.astro';
 import { createApiToken } from '@/lib/jwt';
+import InputCaptcha from '@/components/common/form/InputCaptcha.astro';
 
 interface Props {
 	translations: Translation.SignUpForm;
@@ -26,17 +28,17 @@ console.log("apiToken:", apiToken);
 <form id="signup-form" class="mt-6 space-y-4" data-api-token={apiToken}>
 
     <Input id="signup-email" type="email" name="email" autocomplete="email" spellcheck="false" validate="email"
-        class="peer block w-full py-2.5 px-4 border rounded-2xl border-neutral-600 text-lg text-neutral-600 bg-transparent transition-colors duration-300 focus:border-blue-500 focus:outline-none" minlength={fieldLimits.email.minLength} maxlength={fieldLimits.email.maxLength}
+        class="peer block w-full h-13 px-4 border rounded-2xl border-neutral-600 text-lg text-neutral-600 bg-transparent transition-colors duration-300 focus:border-blue-500 focus:outline-none" minlength={fieldLimits.email.minLength} maxlength={fieldLimits.email.maxLength}
         label={translations.form.fields.email.label} messages={translations.form.fields.email.validation} required
     />
 
     <Input id="signup-name" type="text" name="name" autocomplete="name" spellcheck="false" validate="name"
-        class="peer block w-full py-2.5 px-4 border rounded-2xl border-neutral-600 text-lg text-neutral-600 bg-transparent transition-colors duration-300 focus:border-blue-500 focus:outline-none" minlength={fieldLimits.name.minLength} maxlength={fieldLimits.name.maxLength}
+        class="peer block w-full h-13 px-4 border rounded-2xl border-neutral-600 text-lg text-neutral-600 bg-transparent transition-colors duration-300 focus:border-blue-500 focus:outline-none" minlength={fieldLimits.name.minLength} maxlength={fieldLimits.name.maxLength}
         label={translations.form.fields.name.label} messages={translations.form.fields.name.validation} required
     />
 
     <Input id="signup-password" type="password" name="password" autocomplete="new-password" validate="new-password"
-        class="peer block w-full py-2.5 px-4 border rounded-2xl border-neutral-600 text-lg text-neutral-600 bg-transparent transition-colors duration-300 focus:border-blue-500 focus:outline-none" minlength={fieldLimits.password.minLength} maxlength={fieldLimits.password.maxLength}
+        class="peer block w-full h-13 px-4 border rounded-2xl border-neutral-600 text-lg text-neutral-600 bg-transparent transition-colors duration-300 focus:border-blue-500 focus:outline-none" minlength={fieldLimits.password.minLength} maxlength={fieldLimits.password.maxLength}
         label={translations.form.fields.newPassword.label} messages={translations.form.fields.newPassword.validation} required
         passwordToggle={{
             showLabel: translations.form.fields.newPassword.ariaLabel.showPassword,
@@ -76,6 +78,15 @@ console.log("apiToken:", apiToken);
         label="Confirmas que tienes al menos 18 años." messages={{ REQUIRED: "Debes confirmar que eres mayor de edad." }} required
     /> -->
 
+    <!-- <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+    <div class="cf-turnstile" data-sitekey={import.meta.env.PUBLIC_TURNSTILE_SITE_KEY}></div> -->
+
+  
+    <InputCaptcha class="group flex w-full h-13 items-center gap-2 px-4 border rounded-2xl border-neutral-600 text-neutral-600 transition-colors duration-300 disabled:cursor-not-allowed disabled:pointer-events-none" 
+        label="Verifica que eres humano"
+    />
+
     <Feedback type="form" messages={translations.form.error} />
 
     <ToggleButton id="signup-submit" type="submit" class="w-full h-11 px-4 rounded-3xl flex items-center justify-center text-white bg-blue-500 transition-opacity duration-300 ease-in-out disabled:opacity-70 disabled:cursor-not-allowed disabled:pointer-events-none" ariaLabelActive="Enviando formulario" ariaLabelInactive="Enviar formulario" mode="busy" disabled>
@@ -112,8 +123,39 @@ console.log("apiToken:", apiToken);
     const form = document.getElementById('signup-form') as HTMLFormElement | null;
     const apiToken = form?.dataset.apiToken;
 
+    // const resetChallenge = () => {
+    //     (window as any).turnstile?.reset();
+    //     window.dispatchEvent(new CustomEvent('toggle-button:deactivate:signup-submit'));
+    // };
+
+    // const token = form.querySelector<HTMLInputElement>('[name="cf-turnstile-response"]')?.value;
+
+    // console.log("token:", form);
+
     if (form) {
+
+const resetChallenge = () => {
+    (window as any).turnstile?.reset();
+    window.dispatchEvent(new CustomEvent('toggle-button:deactivate:signup-submit'));
+};
+
+        
         const { setFieldsError, setFormError } = setupForm<SignUpForm>(form, async (data) => {
+
+           
+            // if (!token) {
+            //     setFormError('FORBIDDEN');
+            //     resetChallenge();
+            //     return;
+            // }
+            const token = form.querySelector<HTMLInputElement>('[name="cf-turnstile-response"]')?.value;
+
+            if (!token) {
+                setFormError('FORBIDDEN');
+                resetChallenge();
+                return;
+            }
+
             let res: Response;
 
             try {
@@ -123,7 +165,7 @@ console.log("apiToken:", apiToken);
                         'Content-Type': 'application/json',
                         "Authorization": `Bearer ${apiToken}`,
                     },
-                    body: JSON.stringify(data),
+                    body: JSON.stringify({ ...data, 'cf-turnstile-response': token }),
                 });
             } catch {
                 // error de red: el servidor no respondió
