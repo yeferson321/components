@@ -1,23 +1,69 @@
 ---
+import { FormField } from 'ui/components';
 import Feedback from '@/components/common/form/Feedback.astro';
-import type { ValidatorKey } from 'ui/behaviors'; // ajustá el path real de tu módulo de validación
 
 interface Props extends astroHTML.JSX.InputHTMLAttributes {
-    class?: string;
     label: string;
     messages?: Record<string, string>;
-    validate: ValidatorKey;
-}
+};
 
-const { id, class: className, label, messages = {}, validate, ...inputAttributes } = Astro.props;
+const { id, label, messages = {}, ...inputAttributes } = Astro.props;
 ---
 
-<div class="form-field">
-    <div class="flex items-center">
-        <input id={id} type="checkbox" class:list={["field-input", className]} {...inputAttributes} data-field-input data-validate={validate} />
-        <label for={id} class="select-none ms-2 text-sm text-neutral-600">{label}</label>
+<FormField>
+
+    <!-- <div class="mx-2 flow-root">
+        <input id={id} type="checkbox" class="field-input float-left me-2" {...inputAttributes} data-field-input data-validate="checkbox" />
+
+        <label for={id} class="block text-sm leading-6 text-neutral-600">{label}</label>
+    </div> -->
+
+    <div class="mx-2 flex">
+        <input id={id} type="checkbox" class="field-input me-1.5" {...inputAttributes} data-field-input data-validate="checkbox" />
+
+        <label for={id} class="text-sm text-neutral-600">{label}</label>
     </div>
 
     <Feedback type="field" messages={messages} />
 
-</div>
+</FormField>
+
+<style>
+input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 1px solid oklch(43.9% 0 none);
+    border-radius: 6px;
+    background-color: transparent;
+    cursor: pointer;
+    display: inline-grid;
+    place-content: center;
+    flex-shrink: 0;
+}
+
+input[type="checkbox"]::before {
+    content: "";
+    width: 6px;
+    height: 11px;
+    border: solid #ffffff;
+    border-width: 0 2px 2px 0;
+    transform: translateY(-1px) rotate(45deg) scale(0);
+    transition: transform 150ms ease-in-out;
+}
+
+input[type="checkbox"]:checked {
+    border-color: oklch(50.8% 0.118 165.612);
+    background-color: oklch(50.8% 0.118 165.612);
+}
+
+input[type="checkbox"]:checked::before {
+    transform: translateY(-1px) rotate(45deg) scale(1);
+}
+
+input[type="checkbox"]:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+</style>

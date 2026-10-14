@@ -1,0 +1,1 @@
+export { default as IconLoad } from './IconLoad.svg';

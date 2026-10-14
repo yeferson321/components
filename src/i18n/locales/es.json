@@ -110,6 +110,15 @@
                             "TOO_LONG": "Debe tener al máximo 64 caracteres",
                             "INVALID": "Introduce una contraseña válida"
                         }
+                    },
+
+
+
+                    "terms": {
+                        "label": "Confirmo que tengo al menos 18 años y la mayoría de edad legal en mi jurisdicción.",
+                        "validation": {
+                            "REQUIRED": "Debes confirmar que eres mayor de edad."
+                        }
                     }
                 },
 

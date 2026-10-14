@@ -11,6 +11,7 @@
     "./icons/brands/color": "./src/icons/brands/color/index.ts",
 
     "./icons/outline": "./src/icons/outline/index.ts",
+    "./icons/solid": "./src/icons/solid/index.ts",
 
     "./behaviors": "./src/behaviors/index.ts",
 

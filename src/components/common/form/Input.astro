@@ -1,31 +1,23 @@
 ---
-import { ToggleButton, FormField } from 'ui/components';
-import { IconEye, IconEyeSlash } from 'ui/icons/outline';
-import Feedback from '@/components/common/form/Feedback.astro';
 import type { ValidatorKey } from 'ui/behaviors';
+import { FormField } from 'ui/components';
+import Feedback from '@/components/common/form/Feedback.astro';
 
 interface Props extends astroHTML.JSX.InputHTMLAttributes {
     id: string;
-    class?: string;
     label?: string;
     messages?: Record<string, string>;
     validate: ValidatorKey;
-    passwordToggle?: {
-        showLabel: string;
-        hideLabel: string;
-    };
 };
 
-const { id, class: className, type, label, messages = {}, validate, passwordToggle, ...inputAttributes } = Astro.props;
-
-const showPasswordToggle = type === 'password' && passwordToggle;
+const { id, type, label, messages = {}, validate, ...inputAttributes } = Astro.props;
 ---
 
 <FormField>
 
     <div class="relative">
         
-        <input id={id} type={type} class:list={["field-input", className ]} placeholder=" " {...inputAttributes} data-field-input data-validate={validate}/>
+        <input id={id} type={type} class="field-input peer block w-full h-13 px-4 border rounded-2xl border-neutral-600 text-lg text-neutral-600 bg-transparent transition-colors duration-300 focus:border-blue-500 focus:outline-none" placeholder=" " {...inputAttributes} data-field-input data-validate={validate}/>
         
         <label for={id} class="field-label absolute left-3 px-1 pointer-events-none duration-300 top-0 -translate-y-1/2 text-base text-neutral-600 bg-white
             peer-placeholder-shown:top-1/2
@@ -39,61 +31,30 @@ const showPasswordToggle = type === 'password' && passwordToggle;
             peer-focus:bg-white">
             {label}
         </label>
-
-        { showPasswordToggle && (
-            <ToggleButton id={`${id}-toggle-button`} class="absolute right-4 top-1/2 -translate-y-1/2" ariaLabelActive={passwordToggle.hideLabel} ariaLabelInactive={passwordToggle.showLabel}>
-                <IconEye stroke-width="1.6" width="20" height="20" class="stroke-neutral-600 hidden" data-toggle-button-active />
-                <IconEyeSlash stroke-width="1.6" width="20" height="20" class="stroke-neutral-600" data-toggle-button-inactive/>
-            </ToggleButton>
-        )}
-
         
     </div>
 
     <Feedback type="field" messages={messages} />
 
-    <slot />
-
 </FormField>
-
-<script>
-    const setupInput = (fieldElement: HTMLDivElement) => { 
-        const passwordInput = fieldElement.querySelector<HTMLInputElement>('input[type="password"]');
-        const toggleButton = fieldElement.querySelector<HTMLButtonElement>('[id$="-toggle-button"]');
-
-        toggleButton?.addEventListener("toggle-button:change", (event) => {
-            const { active } = (event as CustomEvent<{ active: boolean }>).detail;
-            console.log(active)
-            if (passwordInput) passwordInput.type = active ? "text" : "password";
-        });
-    };
-    
-    document.querySelectorAll<HTMLDivElement>(".form-field").forEach(setupInput);
-</script>
 
 <style is:global>
 .form-field[data-state="valid"] .field-input {
     border-color: oklch(50.8% 0.118 165.612);
 }
 
-.form-field[data-state="invalid"] .field-input {
-    border-color: oklch(75% 0.183 55.934)
-}
-
+.form-field[data-state="invalid"] .field-input,
 .form-field[data-state="error"] .field-input {
-    border-color: oklch(75% 0.183 55.934)
+    border-color: oklch(75% 0.183 55.934);
 }
 
 .form-field[data-state="valid"] .field-label {
     color: oklch(50.8% 0.118 165.612);
 }
 
-.form-field[data-state="invalid"] .field-label {
-    color: oklch(75% 0.183 55.934)
-}
-
+.form-field[data-state="invalid"] .field-label,
 .form-field[data-state="error"] .field-label {
-    color: oklch(75% 0.183 55.934)
+    color: oklch(75% 0.183 55.934);
 }
 
 input:-webkit-autofill,
@@ -103,40 +64,10 @@ input:-webkit-autofill:active {
     /* Esto simula el background-color real usando un box-shadow enorme */
     -webkit-box-shadow: 0 0 0 1000px oklch(100% 0 0) inset !important;
     box-shadow: 0 0 0 1000px oklch(100% 0 0) inset !important;
-    
     /* El color del texto sí puedes forzarlo directamente */
     -webkit-text-fill-color: oklch(43.9% 0 0) !important;
     caret-color: oklch(43.9% 0 0);
-
     /* Evita el "flash" del color por defecto al cargar */
     transition: background-color 5000s ease-in-out 0s;
-}
-
-/* .field-feedback {
-    display: none;
-}
-
-.form-field[data-state="invalid"] .field-feedback {
-    display: flex;
-} */
-
-.form-field[data-req-letter="true"] [data-requirement="letter"] {
-    color: oklch(50.8% 0.118 165.612);
-}
-
-.form-field[data-req-number="true"] [data-requirement="number"] {
-    color: oklch(50.8% 0.118 165.612);
-}
-
-.form-field[data-req-special="true"] [data-requirement="special"] {
-    color: oklch(50.8% 0.118 165.612);
-}
-
-.form-field[data-req-length="true"] [data-requirement="length"] {
-    color: oklch(50.8% 0.118 165.612);
-}
-
-.form-field[data-state="error"] [data-requirement] {
-    color: oklch(43.9% 0 0) !important; /* mismo neutral que usas en el resto del texto */
 }
 </style>
