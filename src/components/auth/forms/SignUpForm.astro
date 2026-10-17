@@ -17,8 +17,6 @@ interface Props {
 const { translations } = Astro.props;
 
 const apiToken = await createApiToken(import.meta.env.API_KEY, import.meta.env.JWT_ENCRYPTION_KEY);
-
-console.log("apiToken:", apiToken);
 ---
 
 <h2 id="login-modal-title" class="text-center text-2xl font-medium text-neutral-800">{translations.title}</h2>
@@ -43,14 +41,16 @@ console.log("apiToken:", apiToken);
     />
 
     <InputPassword id="signup-password" type="password" name="password" autocomplete="new-password" validate="new-password"
-        minlength={fieldLimits.password.minLength} maxlength={fieldLimits.password.maxLength}
-        label={translations.form.fields.newPassword.label} messages={translations.form.fields.newPassword.validation}
-        ariaLabel={translations.form.fields.newPassword.ariaLabel} passwordRules={translations.form.fields.newPassword.passwordRules} required
+        minlength={fieldLimits.password.minLength} maxlength={fieldLimits.password.maxLength} translations={translations.form.fields.newPassword} required
+    />
+
+    <InputPassword id="signup-password" type="password" name="password" autocomplete="current-password" validate="current-password"
+        minlength={fieldLimits.password.minLength} maxlength={fieldLimits.password.maxLength} translations={translations.form.fields.newPassword} required
     />
 
     <InputCheckbox id="signup-checkbox" name="terms" label={translations.form.fields.terms.label} messages={translations.form.fields.terms.validation} required />
 
-    <InputCaptcha label="Soy humano" />
+    <InputCaptcha id="signup-captcha-slider" translations={translations.}/>
 
     <!-- <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
@@ -76,71 +76,39 @@ console.log("apiToken:", apiToken);
         name: string;
         email: string;
         password: string;
-        // terms?: string;
+        terms?: string;
+        captcha?: string;
     };
 
     const form = document.getElementById('signup-form') as HTMLFormElement | null;
     const apiToken = form?.dataset.apiToken;
 
-    // const resetChallenge = () => {
-    //     (window as any).turnstile?.reset();
-    //     window.dispatchEvent(new CustomEvent('toggle-button:deactivate:signup-submit'));
-    // };
-
-    // const token = form.querySelector<HTMLInputElement>('[name="cf-turnstile-response"]')?.value;
-
-    // console.log("token:", form);
-
+    const resetForm = () => {
+        window.dispatchEvent(new CustomEvent('toggle-button:deactivate:signup-submit'));
+        window.dispatchEvent(new CustomEvent('captcha:reset:signup-captcha-slider'));
+    };
+   
     if (form) {
-
-// const resetChallenge = () => {
-//     (window as any).turnstile?.reset();
-//     window.dispatchEvent(new CustomEvent('toggle-button:deactivate:signup-submit'));
-// };
-
         
         const { setFieldsError, setFormError } = setupForm<SignUpForm>(form, async (data) => {
 
-           
-            // if (!token) {
-            //     setFormError('FORBIDDEN');
-            //     resetChallenge();
-            //     return;
-            // }
-            // const token = form.querySelector<HTMLInputElement>('[name="cf-turnstile-response"]')?.value;
+            const response = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    "Authorization": `Bearer ${apiToken}`,
+                },
+                body: JSON.stringify({ ...data }),
+            });
 
-            // if (!token) {
-            //     setFormError('FORBIDDEN');
-            //     resetChallenge();
-            //     return;
-            // }
-
-            let res: Response;
-
-            try {
-                res = await fetch('/api/auth/register', {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        "Authorization": `Bearer ${apiToken}`,
-                    },
-                    body: JSON.stringify({ ...data }),
-                });
-            } catch {
-                // error de red: el servidor no respondió
-                setFormError('INTERNAL_SERVER_ERROR');
-                window.dispatchEvent(new CustomEvent('toggle-button:deactivate:signup-submit'));
-                return;
-            }
-
-            if (!res.ok) {
-                if (res.status === 409) {
+            if (!response.ok) {
+                if (response.status === 409) {
                     setFieldsError({ email: 'CONFLICT' });
                 } else {
                     setFormError('INTERNAL_SERVER_ERROR');
                 }
 
-                window.dispatchEvent(new CustomEvent('toggle-button:deactivate:signup-submit'));
+                resetForm();
                 return;
             }
 

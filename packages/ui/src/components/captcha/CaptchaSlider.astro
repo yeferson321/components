@@ -1,71 +1,67 @@
 ---
-import { IconShieldCheck } from 'ui/icons/outline';
+/*
+ * Captcha slider: el componente solo controla el <div> raíz; toda la estructura visual
+ * la define el usuario dentro del slot. Lo único que el usuario aporta es su HTML, los
+ * data-* de abajo (para que el componente sepa qué mover) y el color según el estado
+ * (vía [data-captcha] en la raíz: "idle" | "verifying" | "verified" | "error").
+ *
+ * Elementos requeridos dentro del slot:
+ * - [data-captcha-track]: el riel sobre el que se desliza el handle (position: relative).
+ * - [data-captcha-handle]: el botón que se arrastra (position: absolute; su propio aria-label).
+ * - [data-captcha-status]: el texto de estado; debe traer data-messages con
+ *   JSON.stringify({ idle, verifying, verified, error }).
+ *
+ * Elementos opcionales (cada uno con position: absolute en tu CSS), el componente les
+ * fija left/width y la transición — no hace falta escribir calc() ni transition para esto:
+ * - [data-captcha-piece]: la pieza que se mueve junto con el handle (sigue --r).
+ * - [data-captcha-hole]: el hueco objetivo (sigue --t, solo cambia al iniciar un round).
+ * - [data-captcha-fill]: relleno de progreso dentro del riel (su width sigue --r).
+ *
+ * Emite `captcha:change` (detail: { state }), burbujea. Reinicio: evento `captcha:reset`
+ * en el elemento, o `captcha:reset:<id>` global si el captcha tiene id.
+ */
 
-interface Props extends astroHTML.JSX.HTMLAttributes {
+interface Props {
+    id?: string;
     class?: string;
-    label: string;
-    handleLabel: string;
-    protectedLabel?: string;
-    messages: Record<"idle" | "verifying" | "verified" | "error", string>;
 };
 
-const { class: className = "", label, handleLabel, protectedLabel, messages, ...attrs } = Astro.props;
+const { id, class: className } = Astro.props;
 ---
 
-<div class:list={["captcha", className]} data-captcha-type="slider" data-captcha="idle" {...attrs}>
-
-    <div class="space-y-3">
-
-        <div>
-
-            <div class="flex items-center text-emerald-700"> 
-                <IconShieldCheck stroke-width="1.6" width="16" height="16" class="shrink-0 me-1" aria-hidden="true"/>
-                <span class="text-base">{protectedLabel}</span> 
-            </div>
-            
-            <span class="text-lg text-neutral-600">{label}</span>
-
-        </div>
-
-        <div class="captcha-scene relative h-37 overflow-hidden rounded-2xl">
-            <svg viewBox="0 0 446 150" preserveAspectRatio="xMidYMid slice" class="absolute inset-0 size-full" aria-hidden="true">
-                <circle cx="70" cy="40" r="26" fill="#bfdbfe"/>
-                <path d="M0 150L110 70L200 150Z" fill="#93c5fd"/>
-                <path d="M140 150L270 50L400 150Z" fill="#60a5fa" opacity=".7"/>
-                <circle cx="380" cy="36" r="16" fill="#fde68a"/>
-            </svg>
-            <div class="absolute top-13 box-border size-11 rounded-lg border-2 border-dashed border-white bg-black/30" style="left: calc((100% - 44px) * var(--t))"></div>
-            <div class="captcha-piece absolute top-13 box-border size-11 rounded-lg border-2 border-white shadow-md" style="left: calc((100% - 44px) * var(--r))"></div>
-        </div>
-
-        <div class="relative h-11 rounded-full bg-neutral-100 ring-1 ring-neutral-300" data-captcha-track>
-            <div class="captcha-fill absolute inset-y-0 left-0 rounded-full opacity-25" style="width: calc((100% - 44px) * var(--r) + 22px)"></div>
-            <button type="button" class="absolute top-0 flex size-11 touch-none cursor-grab items-center justify-center rounded-full border border-neutral-400 bg-white shadow-sm" style="left: calc((100% - 44px) * var(--r))" data-captcha-handle aria-label={handleLabel} >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-neutral-600" aria-hidden="true">
-                    <path d="M9 6l6 6-6 6"/>
-                </svg>
-            </button>
-        </div>
-
-        <p role="status" aria-live="polite" class="captcha-status flex min-h-5 items-center gap-2 text-sm text-neutral-600">
-            <span class="size-2 shrink-0 rounded-full bg-current" aria-hidden="true"></span>
-            <span data-captcha-status data-messages={JSON.stringify(messages)}>{messages.idle}</span>
-        </p>
-
-    </div>
-
+<div id={id} class:list={["captcha", className]} data-captcha-type="slider" data-captcha="idle">
+    <slot />
 </div>
 
-<style>
-    .captcha { --r: 0; --t: 0.5; }
-    .captcha-scene { background: linear-gradient(135deg, #dbeafe, #f0f9ff); }
-    .captcha-piece, .captcha-fill { background: oklch(62.3% 0.214 259.815); transition: left .3s, width .3s, background-color .3s; }
-    [data-captcha-handle] { transition: left .3s; }
-    .captcha[data-dragging="true"] :is(.captcha-piece, .captcha-fill, [data-captcha-handle]) { transition: none; }
-    .captcha[data-captcha="verified"] .captcha-status { color: oklch(50.8% 0.118 165.612); }
-    .captcha[data-captcha="verified"] :is(.captcha-piece, .captcha-fill) { background: oklch(50.8% 0.118 165.612); }
-    .captcha[data-captcha="error"] .captcha-status { color: oklch(75% 0.183 55.934); }
-    .captcha[data-captcha="error"] :is(.captcha-piece, .captcha-fill) { background: oklch(75% 0.183 55.934); }
+<style is:global>
+/* is:global a propósito: el contenido del slot lo renderiza quien usa el componente,
+   no CaptchaSlider, así que un <style> con scope normal de Astro nunca lo alcanza. */
+.captcha {
+    --r: 0;
+    --t: 0.5;
+    --captcha-handle-size: 0px; /* el script la fija con el tamaño real del handle */
+}
+
+.captcha :is([data-captcha-piece], [data-captcha-handle]) {
+    left: calc((100% - var(--captcha-handle-size)) * var(--r));
+}
+
+.captcha [data-captcha-hole] {
+    left: calc((100% - var(--captcha-handle-size)) * var(--t));
+}
+
+.captcha [data-captcha-fill] {
+    width: calc((100% - var(--captcha-handle-size)) * var(--r) + var(--captcha-handle-size) / 2);
+}
+
+.captcha :is([data-captcha-piece], [data-captcha-hole], [data-captcha-handle], [data-captcha-fill]) {
+    transition: left .3s ease, width .3s ease;
+}
+
+.captcha[data-dragging="true"] :is([data-captcha-piece], [data-captcha-fill], [data-captcha-handle]),
+.captcha[data-captcha-measuring="true"] :is([data-captcha-piece], [data-captcha-hole], [data-captcha-handle], [data-captcha-fill]) {
+    transition: none;
+}
 </style>
 
 <script>
@@ -76,9 +72,31 @@ const { class: className = "", label, handleLabel, protectedLabel, messages, ...
     const setupSlider = (root: CaptchaElement) => {
         const track = root.querySelector<HTMLElement>('[data-captcha-track]');
         const handle = root.querySelector<HTMLButtonElement>('[data-captcha-handle]');
-        if (!track || !handle) return;
+        if (!track || !handle) throw new Error('CaptchaSlider: internal element(s) [data-captcha-track]/[data-captcha-handle] not found.');
 
-        // r = posición de la pieza y t = posición del hueco, ambas en proporción 0–1 del recorrido
+        // El tamaño del handle puede ser 0 al montar (p. ej. dentro de un Modal todavía
+        // cerrado, con display: none) o al volver a ocultarse. Se ignoran esas mediciones en 0
+        // y se conserva el último tamaño real conocido: si no, --captcha-handle-size oscilaría
+        // entre 0 y el tamaño real en cada apertura, y la transición de los elementos animaría
+        // ese salto como si se movieran solos.
+        //
+        // data-captcha-measuring desactiva esa misma transición mientras aún no hay una medición
+        // real: sin esto, la primera corrección (del 0px inicial al tamaño real del handle) se
+        // animaría igual, aunque las siguientes aperturas ya queden estables.
+        root.dataset.captchaMeasuring = 'true';
+
+        new ResizeObserver(([entry]) => {
+            const width = entry.contentRect.width;
+            if (width <= 0) return;
+
+            root.style.setProperty('--captcha-handle-size', `${width}px`);
+
+            if (root.dataset.captchaMeasuring) {
+                requestAnimationFrame(() => { delete root.dataset.captchaMeasuring; });
+            }
+        }).observe(handle);
+
+        // r = posición de la pieza y t = posición del hueco, ambas en proporción 0–1 del recorrido.
         let r = 0;
         let t = 0;
         let timer = 0;

@@ -1,6 +1,7 @@
 export { default as IconBars3Right } from './IconBars3Right.svg';
 export { default as IconCheckCircle } from './IconCheckCircle.svg';
 export { default as IconChevronDown } from './IconChevronDown.svg';
+export { default as IconChevronRight } from './IconChevronRight.svg';
 export { default as IconEye } from './IconEye.svg';
 export { default as IconEyeSlash } from './IconEyeSlash.svg';
 export { default as IconHeart } from './IconHeart.svg';

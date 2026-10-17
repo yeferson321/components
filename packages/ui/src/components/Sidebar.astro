@@ -104,7 +104,7 @@ const { id, class: className, overlayColor, offset, horizontalPosition = 'right'
         unmount === "true" ? removeElement(sidebarElement) : appendChildElement(sidebarElement);
 
         const openButtonElement = document.querySelector<HTMLButtonElement>(`[data-sidebar-open="${sidebarId}"]`);
-        const closeButtonElement = sidebarElement.querySelector<HTMLButtonElement>("[data-sidebar-close]");
+        const closeButtonElement = sidebarElement.querySelector<HTMLButtonElement>(`[data-sidebar-close="${sidebarId}"]`);
         const focusableElement = sidebarElement.querySelector<HTMLElement>("[data-sidebar-autofocus]");
         let lastFocusedElement: HTMLElement | null = null;
 

@@ -1,20 +1,22 @@
 ---
-import { CaptchaSlider, FormField, Modal } from 'ui/components';
-import { IconXmark } from 'ui/icons/outline';
+import type { Translation } from '@/i18n/config';
+import { CaptchaOrder, CaptchaSlider, FormField, Modal } from 'ui/components';
+import { IconChevronRight, IconShieldCheck, IconXmark } from 'ui/icons/outline';
 
-interface Props extends astroHTML.JSX.InputHTMLAttributes {
+interface Props {
+    id: string;
     class?: string;
-    label: string;
+    translations: Translation.Captcha;
 };
 
-const { id, class: className, label } = Astro.props;
+const { id, class: className, translations } = Astro.props;
 ---
 
 <FormField>
 
     <div class="relative">
 
-        <button id="captcha-trigger" type="button" class:list={["group flex justify-between w-full h-13 items-center gap-2 px-4 border rounded-2xl   border-neutral-200/70  bg-neutral-100   text-neutral-600 transition-colors duration-300 disabled:cursor-not-allowed disabled:pointer-events-none", className ]} data-modal-open="captcha-modal" aria-label="Abrir modal de captcha" aria-haspopup="dialog" aria-expanded="false" aria-controls="captcha-modal">
+        <button type="button" class:list={["group flex justify-between w-full h-13 items-center gap-2 px-4 border rounded-2xl   border-neutral-200/70  bg-neutral-100   text-neutral-600 transition-colors duration-300 disabled:cursor-not-allowed disabled:pointer-events-none", className ]} data-modal-open="captcha-modal" aria-label={translations.ariaLabel.openModal} aria-haspopup="dialog" aria-expanded="false" aria-controls="captcha-modal">
 
             <div class="flex items-center gap-2">
 
@@ -24,7 +26,7 @@ const { id, class: className, label } = Astro.props;
                     </svg>
                 </span>
 
-                <span class="text-base text-neutral-600">{label}</span>
+                <span class="text-base text-neutral-600">{translations.label}</span>
 
             </div>
 
@@ -34,20 +36,83 @@ const { id, class: className, label } = Astro.props;
 
         </button>
 
-        <input id={id} type="checkbox" class="field-input sr-only" data-field-input data-validate="checkbox" tabindex="-1" aria-hidden="true" required>
+        <input id={id} type="checkbox" class="sr-only" name="captcha" data-field-input data-validate="checkbox" tabindex="-1" aria-hidden="true" required>
 
     </div>
 
 </FormField>
 
-  
 <Modal id="captcha-modal" verticalPosition="center" overlayColor="rgba(0,0,0,0.5)" offset="2rem" unmount={false}>
 
     <div class="px-8 pt-12 pb-8 sm:my-8 sm:w-full sm:max-w-lg rounded-3xl border border-neutral-200/70 bg-white">
 
-        <CaptchaSlider id="download-captcha" label="Arrastra la pieza hasta el hueco" handleLabel="Deslizar la pieza" protectedLabel="Protegido" messages={{ idle: "Desliza hasta que encaje", verifying: "Verificando…", verified: "Verificado", error: "No encajó. Inténtalo de nuevo" }}/>
+        <CaptchaSlider id="signup-captcha-slider">
 
-        <button type="button" class="absolute top-4 inset-e-7" data-modal-close="captcha-modal" aria-label="Cerrar modal de captcha">
+            <div class="space-y-3">
+                <div>
+                    <div class="flex items-center text-emerald-700">
+                        <IconShieldCheck stroke-width="1.6" width="16" height="16" class="shrink-0 me-1" aria-hidden="true"/>
+                        <span class="text-base">{translations.protected}</span>
+                    </div>
+                    <h2 class="text-lg text-neutral-600">{translations.instruction}</h2>
+                </div>
+            
+                <div class="relative h-37 overflow-hidden rounded-2xl bg-blue-100">
+                    <svg viewBox="0 0 446 150" preserveAspectRatio="xMidYMid slice" class="absolute inset-0 size-full" aria-hidden="true">
+                        <circle cx="70" cy="40" r="26" fill="#bfdbfe"/>
+                        <path d="M0 150L110 70L200 150Z" fill="#93c5fd"/>
+                        <path d="M140 150L270 50L400 150Z" fill="#60a5fa" opacity=".7"/>
+                        <circle cx="380" cy="36" r="16" fill="#fde68a"/>
+                    </svg>
+                
+                    <div class="absolute top-13 box-border size-11 rounded-lg border-2 border-dashed border-white bg-black/30" data-captcha-hole></div>
+                
+                    <div class="captcha-piece absolute top-13 box-border size-11 rounded-lg border-2 border-white shadow-md bg-blue-500" data-captcha-piece></div>
+                </div>
+            
+                <div class="relative h-11 rounded-full bg-neutral-100 ring-1 ring-neutral-300" data-captcha-track>
+                    <div class="captcha-fill absolute inset-y-0 left-0 rounded-full opacity-25 bg-blue-500" data-captcha-fill></div>
+                
+                    <button type="button" class="absolute top-0 flex size-11 touch-none cursor-grab items-center justify-center rounded-full border border-neutral-400 bg-white shadow-sm" data-captcha-handle aria-label={translations.ariaLabel.slider}>
+                        <IconChevronRight stroke-width="1.8" width="20" height="20" class="stroke-neutral-600" />
+                    </button>
+                </div>
+            
+                <p role="status" aria-live="polite" class="captcha-status flex min-h-5 items-center gap-2 text-sm text-neutral-600">
+                    <span class="size-2 shrink-0 rounded-full bg-current" aria-hidden="true"></span>
+                    <span data-captcha-status data-messages={JSON.stringify(translations.messages)}>{translations.messages.idle}</span>
+                </p>
+            </div>
+
+        </CaptchaSlider>
+
+        <CaptchaOrder id="signup-captcha-order">
+            <div class="captcha-card space-y-3 rounded-2xl border border-neutral-600 p-4 transition-colors duration-300">
+            
+                <div class="flex items-center justify-between gap-2">
+                    <span class="text-base text-neutral-800">Toca las figuras de menor a mayor</span>
+                    <span class="flex shrink-0 items-center gap-1 text-xs text-neutral-500">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 8.2-8 9-4.8-.8-8-4.5-8-9V6l8-3z"/></svg>
+                        Protegido
+                    </span>
+                </div>
+            
+                <div class="captcha-scene relative h-[170px] rounded-xl">
+                    <button type="button" data-captcha-item aria-label="Figura 1" class="captcha-item absolute top-1/2 flex -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border-2 text-base font-semibold" style="left: 12.5%"></button>
+                    <button type="button" data-captcha-item aria-label="Figura 2" class="captcha-item absolute top-1/2 flex -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border-2 text-base font-semibold" style="left: 37.5%"></button>
+                    <button type="button" data-captcha-item aria-label="Figura 3" class="captcha-item absolute top-1/2 flex -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border-2 text-base font-semibold" style="left: 62.5%"></button>
+                    <button type="button" data-captcha-item aria-label="Figura 4" class="captcha-item absolute top-1/2 flex -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border-2 text-base font-semibold" style="left: 87.5%"></button>
+                </div>
+            
+                <p role="status" aria-live="polite" class="captcha-status flex min-h-5 items-center gap-2 text-sm text-neutral-600">
+                    <span class="size-2 shrink-0 rounded-full bg-current" aria-hidden="true"></span>
+                    <span data-captcha-status data-messages={JSON.stringify(messages)}>{messages.idle}</span>
+                </p>
+            
+            </div>
+        </CaptchaOrder>
+
+        <button type="button" class="absolute top-4 inset-e-7" data-modal-close="captcha-modal" aria-label={translations.ariaLabel.closeModal}>
 	    	<IconXmark stroke-width="1.8" width="28" height="28" class="stroke-neutral-600"/>
 	    </button>
 
@@ -55,27 +120,74 @@ const { id, class: className, label } = Astro.props;
 
 </Modal>
 
+<style is:global>
+.captcha[data-captcha="error"] .captcha-piece,
+.captcha[data-captcha="error"] .captcha-fill {
+    background-color: oklch(75% 0.183 55.934);
+}
+.captcha[data-captcha="error"] .captcha-status {
+    color: oklch(75% 0.183 55.934);
+}
+
+.captcha[data-captcha="verified"] .captcha-piece,
+.captcha[data-captcha="verified"] .captcha-fill {
+    background-color: oklch(50.8% 0.118 165.612);
+}
+.captcha[data-captcha="verified"] .captcha-status {
+    color: oklch(50.8% 0.118 165.612);
+}
+
+
+
+
+
+.captcha-scene { background: linear-gradient(135deg, #f5f5f5, #eff6ff); }
+.captcha-item { background: #dbeafe; border-color: #60a5fa; color: #1d4ed8; transition: background-color .2s, border-color .2s; }
+.captcha-item[data-item="tapped"] { background: #3b82f6; border-color: #2563eb; color: #fff; }
+.captcha-item[data-item="wrong"] { background: #fed7aa; border-color: #c2410c; color: #9a3412; }
+.captcha-item[data-item="done"] { background: oklch(50.8% 0.118 165.612); border-color: oklch(50.8% 0.118 165.612); color: #fff; }
+
+.captcha[data-captcha="verifying"] .captcha-card { border-color: #3b82f6; }
+.captcha[data-captcha="verified"] .captcha-card { border-color: oklch(50.8% 0.118 165.612); }
+.captcha[data-captcha="verified"] .captcha-status { color: oklch(50.8% 0.118 165.612); }
+.captcha[data-captcha="error"] .captcha-card { border-color: oklch(75% 0.183 55.934); }
+.captcha[data-captcha="error"] .captcha-status { color: #c2410c; }
+
+</style>
+
 <script>
-    const captchaSlider = document.getElementById('download-captcha') as HTMLInputElement | null;
-    const captchaTrigger = document.getElementById('captcha-trigger') as HTMLButtonElement | null;
-    const captchaCheckbox = document.getElementById('captcha-checkbox') as HTMLInputElement | null;
+    const captchaSlider = document.querySelector("#signup-captcha-slider");
+    const openButtonElement = document.querySelector<HTMLButtonElement>(`[data-modal-open="captcha-modal"]`);
+    const signupCaptcha = document.getElementById('signup-captcha');
+
+    const captchaField = signupCaptcha?.closest<HTMLDivElement & { validate?: () => unknown }>('.form-field');
+
+    console.log("captchaSlider:", captchaSlider);
+    console.log("openButtonElement:", openButtonElement);
+    console.log("signupCaptcha:", signupCaptcha);
 
     const setVerified = (verified: boolean) => {
-        if (captchaCheckbox) captchaCheckbox.checked = verified;
-        if (captchaTrigger) {
-            captchaTrigger.dataset.verified = String(verified);
-            captchaTrigger.disabled = verified; // ya verificado: no hace falta reabrir el modal
+        if (signupCaptcha) signupCaptcha.checked = verified;
+
+        if (openButtonElement) {
+            openButtonElement.dataset.verified = String(verified);
+
+            openButtonElement.disabled = verified; // ya verificado: no hace falta reabrir el modal
         }
+
+        captchaField?.validate?.();
     };
 
     captchaSlider?.addEventListener('captcha:change', (event) => {
-        if (event.detail.state !== 'verified') return;
-
-        setVerified(true);
-        setTimeout(() => window.dispatchEvent(new Event("modal:hide:captcha-modal", { bubbles: true })), 500);
+        const { state } = event.detail;
+        
+        if (state === 'verified') {
+            setTimeout(() => {
+                window.dispatchEvent(new Event('modal:hide:captcha-modal', { bubbles: true }));
+                setVerified(true);
+            }, 500);
+        } else if (state === 'idle') {
+            setVerified(false); // reinicio: checkbox desmarcado, botón reabrible y submit bloqueado
+        }
     });
 </script>
-
-<style>
-
-</style>

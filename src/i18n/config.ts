@@ -5,6 +5,7 @@ export type Translation = typeof en;
 const translationModules = import.meta.glob<{ default: Translation }>("/src/i18n/locales/*.json");
 
 export namespace Translation {
+    export type Captcha = Translation["captcha"];
     export type LoginModal = Translation["loginModal"];
 	export type SignInForm = LoginModal["signIn"];
     export type SignUpForm = LoginModal["signUp"];

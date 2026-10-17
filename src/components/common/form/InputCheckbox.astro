@@ -12,12 +12,6 @@ const { id, label, messages = {}, ...inputAttributes } = Astro.props;
 
 <FormField>
 
-    <!-- <div class="mx-2 flow-root">
-        <input id={id} type="checkbox" class="field-input float-left me-2" {...inputAttributes} data-field-input data-validate="checkbox" />
-
-        <label for={id} class="block text-sm leading-6 text-neutral-600">{label}</label>
-    </div> -->
-
     <div class="mx-2 flex">
         <input id={id} type="checkbox" class="field-input me-1.5" {...inputAttributes} data-field-input data-validate="checkbox" />
 
