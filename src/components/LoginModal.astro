@@ -1,19 +1,18 @@
 ---
 import type { Translation } from '@/i18n/config';
-import { Modal } from 'ui/components';
+import { Modal, MultiStep } from 'ui/components';
 // import MultiStep from '@/components/common/MultiStep.astro';
 
-// import SignInForm from './forms/SignInForm.astro';
+import SignInForm from './auth/forms/SignInForm.astro';
 import SignUpForm from './auth/forms/SignUpForm.astro';
-
 import { IconXmark } from 'ui/icons/outline';
 import { IconGoogle, IconApple } from 'ui/icons/brands/color';
 
 interface Props {
-	translations: Translation.LoginModal;
+	translations: Translation;
 };
 
-const { translations } = Astro.props;
+const { translations: t } = Astro.props;
 ---
 
 <Modal id="login-modal" verticalPosition="center" overlayColor="rgba(0,0,0,0.5)" offset="2rem" unmount={false}>
@@ -28,37 +27,37 @@ const { translations } = Astro.props;
 			Regitrate
 		</button> -->
 
-		<!-- <MultiStep> -->
+		<MultiStep>
 
-			<!-- <div class="auth-view" data-multistep-view="sign-in" data-active="true">
-				<SignInForm translations={translations.signIn}/>
-			</div> -->
+			<div class="auth-view" data-multistep-view="sign-in" data-active="false">
+				<SignInForm tSignIn={t.home.loginModal.signIn} tCaptcha={t.common.captcha}/>
+			</div>
 			
-			<div class="auth-view" data-multistep-view="sign-up" data-active="false">
-				<SignUpForm translations={translations.signUp}/>
+			<div class="auth-view" data-multistep-view="sign-up" data-active="true">
+				<SignUpForm tSignUp={t.home.loginModal.signUp} tCaptcha={t.common.captcha}/>
 			</div>
 
-		<!-- </MultiStep> -->
+		</MultiStep>
 
-		<p class="mt-6 text-center text-base text-neutral-800">{translations.social.title}</p>
+		<p class="mt-6 text-center text-base text-neutral-800">{t.home.loginModal.social.title}</p>
 					
         <div class="mt-4 flex gap-3">
 
-        	<button class="flex-1 flex items-center justify-center h-11 px-2 rounded-2xl border border-neutral-200/70 bg-neutral-100" aria-label={translations.social.google.ariaLabel}>
+        	<button class="flex-1 flex items-center justify-center h-11 px-2 rounded-2xl border border-neutral-200/70 bg-neutral-100" aria-label={t.home.loginModal.social.google.ariaLabel}>
         	    <IconGoogle width="24" height="24"/>
         	</button>
 						
-        	<button class="flex-1 flex items-center justify-center h-11 px-2 rounded-2xl border border-neutral-200/70  bg-neutral-100" aria-label={translations.social.apple.ariaLabel}>
+        	<button class="flex-1 flex items-center justify-center h-11 px-2 rounded-2xl border border-neutral-200/70  bg-neutral-100" aria-label={t.home.loginModal.social.apple.ariaLabel}>
         	    <IconApple width="24" height="24"/>
         	</button>
 
         </div>
 
 		<p class="mt-6 text-center text-sm text-neutral-800">
-            {translations.terms.text} <a href="/terms" class="underline font-medium">{translations.terms.termsOfUse}</a> • <a href="/privacy" class="underline font-medium">{translations.terms.privacyPolicy}</a>
+            {t.home.loginModal.terms.text} <a href="/terms" class="underline font-medium">{t.home.loginModal.terms.termsOfUse}</a> • <a href="/privacy" class="underline font-medium">{t.home.loginModal.terms.privacyPolicy}</a>
         </p>
 	
-		<button type="button" class="absolute top-4 inset-e-7" data-modal-close="login-modal" aria-label={translations.close.ariaLabel}>
+		<button type="button" class="absolute top-4 inset-e-7" data-modal-close="login-modal" aria-label={t.home.loginModal.close.ariaLabel}>
 			<IconXmark stroke-width="1.8" width="28" height="28" class="stroke-neutral-600"/>
 		</button>
 					

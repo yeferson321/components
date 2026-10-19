@@ -1,0 +1,18 @@
+{
+    "captcha": {
+        "label": "Soy humano",
+        "ariaLabel": {
+            "openModal": "Abrir verificación CAPTCHA",
+            "closeModal": "Cerrar modal de CAPTCHA",
+            "slider": "Deslizar para verificar"
+        },
+        "protected": "Protegido",
+        "instruction": "Arrastra la pieza hasta el hueco",
+        "messages": {
+            "idle": "Desliza hasta que encaje",
+            "verifying": "Verificando…",
+            "verified": "¡Verificado!",
+            "error": "No encajó. Inténtalo de nuevo"
+        }
+    }
+}

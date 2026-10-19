@@ -1,0 +1,56 @@
+---
+const { class: className = "", ...attributes } = Astro.props;
+---
+
+<div class:list={["multi-step", className]} {...attributes} data-multi-step>
+    <slot />
+</div>
+
+<script>
+    const setupMultiStep = (multiStepElement: HTMLDivElement) => {
+        const viewsElements = multiStepElement.querySelectorAll<HTMLElement>("[data-multistep-view]");
+        const triggerbuttonsElements = multiStepElement.querySelectorAll<HTMLButtonElement>("[data-multistep-target]");
+
+        const changeView = (view: string) => {
+            viewsElements.forEach((viewElement) => {
+                const isActive = viewElement.dataset.multistepView === view;
+                viewElement.dataset.active = String(isActive);
+                viewElement.hidden = !isActive;
+            });
+        };
+
+        triggerbuttonsElements.forEach((button) => {
+            button.addEventListener("click", () => {
+                const view = button.dataset.multistepTarget;
+                if (view) changeView(view);
+            });
+        });
+
+        multiStepElement.addEventListener("multi-step:change", (event) => {
+            const customEvent = event as CustomEvent<{ view: string }>;
+            changeView(customEvent.detail.view);
+        });
+    };
+
+    document.querySelectorAll<HTMLDivElement>("[data-multi-step]").forEach(setupMultiStep);
+</script>
+
+<style is:global>
+.multi-step > * {
+    display: none;
+}
+
+.multi-step > *[data-active="true"] {
+    display: block;
+}
+</style>
+
+<!-- <style>
+.auth-view {
+    display: none;
+}
+
+.auth-view[data-active="true"] {
+    display: block;
+}
+</style> -->

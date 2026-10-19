@@ -9,36 +9,29 @@ interface Props {
     translations: Translation.Captcha;
 };
 
-const { id, class: className, translations } = Astro.props;
+const { id, class: className, translations: t } = Astro.props;
 ---
 
 <FormField>
 
-    <div class="relative">
+    <button type="button" class:list={["group flex justify-between w-full h-13 items-center gap-2 px-4 border rounded-2xl   border-neutral-200/70  bg-neutral-100   text-neutral-600 transition-colors duration-300 disabled:cursor-not-allowed disabled:pointer-events-none", className ]} data-modal-open="captcha-modal" aria-label={t.ariaLabel.openModal} aria-haspopup="dialog" aria-expanded="false" aria-controls="captcha-modal">
+        
+        <div class="flex items-center gap-2">
+            <span class="w-6 h-6 flex items-center justify-center border rounded-md border-neutral-600 group-data-[verified=true]:border-emerald-700 bg-white" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" width="18" height="18" stroke="currentColor" class="hidden group-data-[verified=true]:flex group-data-[verified=true]:stroke-emerald-700">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+            </span>
+            <span class="text-base text-neutral-600">{t.label}</span>
+        </div>
 
-        <button type="button" class:list={["group flex justify-between w-full h-13 items-center gap-2 px-4 border rounded-2xl   border-neutral-200/70  bg-neutral-100   text-neutral-600 transition-colors duration-300 disabled:cursor-not-allowed disabled:pointer-events-none", className ]} data-modal-open="captcha-modal" aria-label={translations.ariaLabel.openModal} aria-haspopup="dialog" aria-expanded="false" aria-controls="captcha-modal">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 stroke-emerald-700">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+        </svg>
 
-            <div class="flex items-center gap-2">
+    </button>
 
-                <span class="w-6 h-6 flex items-center justify-center border rounded-md border-neutral-600 group-data-[verified=true]:border-emerald-700 bg-white" aria-hidden="true">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" width="18" height="18" stroke="currentColor" class="hidden group-data-[verified=true]:flex group-data-[verified=true]:stroke-emerald-700">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                    </svg>
-                </span>
-
-                <span class="text-base text-neutral-600">{translations.label}</span>
-
-            </div>
-
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 stroke-emerald-700">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
-            </svg>
-
-        </button>
-
-        <input id={id} type="checkbox" class="sr-only" name="captcha" data-field-input data-validate="checkbox" tabindex="-1" aria-hidden="true" required>
-
-    </div>
+    <input id={id} type="checkbox" class="sr-only" name="captcha" data-field-input data-validate="checkbox" tabindex="-1" aria-hidden="true" required>
 
 </FormField>
 
@@ -52,9 +45,9 @@ const { id, class: className, translations } = Astro.props;
                 <div>
                     <div class="flex items-center text-emerald-700">
                         <IconShieldCheck stroke-width="1.6" width="16" height="16" class="shrink-0 me-1" aria-hidden="true"/>
-                        <span class="text-base">{translations.protected}</span>
+                        <span class="text-base">{t.protected}</span>
                     </div>
-                    <h2 class="text-lg text-neutral-600">{translations.instruction}</h2>
+                    <h2 class="text-lg text-neutral-600">{t.instruction}</h2>
                 </div>
             
                 <div class="relative h-37 overflow-hidden rounded-2xl bg-blue-100">
@@ -73,14 +66,14 @@ const { id, class: className, translations } = Astro.props;
                 <div class="relative h-11 rounded-full bg-neutral-100 ring-1 ring-neutral-300" data-captcha-track>
                     <div class="captcha-fill absolute inset-y-0 left-0 rounded-full opacity-25 bg-blue-500" data-captcha-fill></div>
                 
-                    <button type="button" class="absolute top-0 flex size-11 touch-none cursor-grab items-center justify-center rounded-full border border-neutral-400 bg-white shadow-sm" data-captcha-handle aria-label={translations.ariaLabel.slider}>
+                    <button type="button" class="absolute top-0 flex size-11 touch-none cursor-grab items-center justify-center rounded-full border border-neutral-400 bg-white shadow-sm" data-captcha-handle aria-label={t.ariaLabel.slider}>
                         <IconChevronRight stroke-width="1.8" width="20" height="20" class="stroke-neutral-600" />
                     </button>
                 </div>
             
                 <p role="status" aria-live="polite" class="captcha-status flex min-h-5 items-center gap-2 text-sm text-neutral-600">
                     <span class="size-2 shrink-0 rounded-full bg-current" aria-hidden="true"></span>
-                    <span data-captcha-status data-messages={JSON.stringify(translations.messages)}>{translations.messages.idle}</span>
+                    <span data-captcha-status data-messages={JSON.stringify(t.messages)}>{t.messages.idle}</span>
                 </p>
             </div>
 
@@ -97,7 +90,7 @@ const { id, class: className, translations } = Astro.props;
                     </span>
                 </div>
             
-                <div class="captcha-scene relative h-[170px] rounded-xl">
+                <div class="captcha-scene relative h-42 rounded-xl">
                     <button type="button" data-captcha-item aria-label="Figura 1" class="captcha-item absolute top-1/2 flex -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border-2 text-base font-semibold" style="left: 12.5%"></button>
                     <button type="button" data-captcha-item aria-label="Figura 2" class="captcha-item absolute top-1/2 flex -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border-2 text-base font-semibold" style="left: 37.5%"></button>
                     <button type="button" data-captcha-item aria-label="Figura 3" class="captcha-item absolute top-1/2 flex -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border-2 text-base font-semibold" style="left: 62.5%"></button>
@@ -106,13 +99,13 @@ const { id, class: className, translations } = Astro.props;
             
                 <p role="status" aria-live="polite" class="captcha-status flex min-h-5 items-center gap-2 text-sm text-neutral-600">
                     <span class="size-2 shrink-0 rounded-full bg-current" aria-hidden="true"></span>
-                    <span data-captcha-status data-messages={JSON.stringify(messages)}>{messages.idle}</span>
+                    <!-- <span data-captcha-status data-messages={JSON.stringify(messages)}>{messages.idle}</span> -->
                 </p>
             
             </div>
         </CaptchaOrder>
 
-        <button type="button" class="absolute top-4 inset-e-7" data-modal-close="captcha-modal" aria-label={translations.ariaLabel.closeModal}>
+        <button type="button" class="absolute top-4 inset-e-7" data-modal-close="captcha-modal" aria-label={t.ariaLabel.closeModal}>
 	    	<IconXmark stroke-width="1.8" width="28" height="28" class="stroke-neutral-600"/>
 	    </button>
 
@@ -152,7 +145,6 @@ const { id, class: className, translations } = Astro.props;
 .captcha[data-captcha="verified"] .captcha-status { color: oklch(50.8% 0.118 165.612); }
 .captcha[data-captcha="error"] .captcha-card { border-color: oklch(75% 0.183 55.934); }
 .captcha[data-captcha="error"] .captcha-status { color: #c2410c; }
-
 </style>
 
 <script>

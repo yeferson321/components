@@ -11,20 +11,21 @@ import InputCaptcha from '@/components/common/form/InputCaptcha.astro';
 import Feedback from '@/components/common/form/Feedback.astro';
 
 interface Props {
-	translations: Translation.SignUpForm;
+	tSignUp: Translation.SignUpForm;
+    tCaptcha: Translation.Captcha;
 };
 
-const { translations } = Astro.props;
+const { tSignUp, tCaptcha } = Astro.props;
 
 const apiToken = await createApiToken(import.meta.env.API_KEY, import.meta.env.JWT_ENCRYPTION_KEY);
 ---
 
-<h2 id="login-modal-title" class="text-center text-2xl font-medium text-neutral-800">{translations.title}</h2>
+<h2 id="login-modal-title" class="text-center text-2xl font-medium text-neutral-800">{tSignUp.title}</h2>
 
 <p class="mt-2 text-center text-base text-neutral-800">
-    {translations.subtitle.text} 
+    {tSignUp.subtitle.text} 
     <button type="button" class="ms-1 underline text-neutral-600 font-medium" data-multistep-target="sign-in" aria-label="">
-        {translations.subtitle.action}
+        {tSignUp.subtitle.action}
     </button>
 </p>
 
@@ -32,37 +33,33 @@ const apiToken = await createApiToken(import.meta.env.API_KEY, import.meta.env.J
 
     <Input id="signup-email" type="email" name="email" autocomplete="email" spellcheck="false" validate="email"
         minlength={fieldLimits.email.minLength} maxlength={fieldLimits.email.maxLength}
-        label={translations.form.fields.email.label} messages={translations.form.fields.email.validation} required
+        label={tSignUp.form.fields.email.label} messages={tSignUp.form.fields.email.validation} required
     />
 
     <Input id="signup-name" type="text" name="name" autocomplete="name" spellcheck="false" validate="name"
         minlength={fieldLimits.name.minLength} maxlength={fieldLimits.name.maxLength}
-        label={translations.form.fields.name.label} messages={translations.form.fields.name.validation} required
+        label={tSignUp.form.fields.name.label} messages={tSignUp.form.fields.name.validation} required
     />
 
     <InputPassword id="signup-password" type="password" name="password" autocomplete="new-password" validate="new-password"
-        minlength={fieldLimits.password.minLength} maxlength={fieldLimits.password.maxLength} translations={translations.form.fields.newPassword} required
+        minlength={fieldLimits.password.minLength} maxlength={fieldLimits.password.maxLength} translations={tSignUp.form.fields.newPassword} required
     />
+    
+    <InputCheckbox id="signup-checkbox" name="terms" label={tSignUp.form.fields.terms.label} messages={tSignUp.form.fields.terms.validation} required />
 
-    <InputPassword id="signup-password" type="password" name="password" autocomplete="current-password" validate="current-password"
-        minlength={fieldLimits.password.minLength} maxlength={fieldLimits.password.maxLength} translations={translations.form.fields.newPassword} required
-    />
-
-    <InputCheckbox id="signup-checkbox" name="terms" label={translations.form.fields.terms.label} messages={translations.form.fields.terms.validation} required />
-
-    <InputCaptcha id="signup-captcha-slider" translations={translations.}/>
+    <InputCaptcha id="signup-captcha-slider" translations={tCaptcha}/>
 
     <!-- <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
     <div class="cf-turnstile" data-sitekey={import.meta.env.PUBLIC_TURNSTILE_SITE_KEY}></div> -->
 
-    <Feedback type="form" messages={translations.form.error} />
+    <Feedback type="form" messages={tSignUp.form.error} />
 
     <ToggleButton id="signup-submit" type="submit" class="w-full h-11 px-4 rounded-3xl text-white flex items-center justify-center bg-blue-500 transition-opacity duration-300 ease-in-out disabled:opacity-70 disabled:cursor-not-allowed disabled:pointer-events-none" ariaLabelActive="Enviando formulario" ariaLabelInactive="Enviar formulario" mode="busy" disabled>
 
         <IconLoad class="size-8 hidden" data-toggle-button-active/>
     
-        <span class="text-lg font-medium" data-toggle-button-inactive>{translations.form.actions.submit}</span>
+        <span class="text-lg font-medium" data-toggle-button-inactive>{tSignUp.form.actions.submit}</span>
 
     </ToggleButton>
         			    

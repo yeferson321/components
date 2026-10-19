@@ -1,13 +1,13 @@
 ---
 import '@/styles/global.css';
-import type { Translation } from '@/i18n/config';
+import type { LocaleCode, Translation } from '@/i18n/config';
 
 interface Props {
+	locale: LocaleCode;
 	translations: Translation;
-	locale: string;
 };
 
-const { translations, locale } = Astro.props;
+const { locale, translations: t } = Astro.props;
 ---
 
 <!doctype html>

@@ -11,20 +11,21 @@ import InputCaptcha from '@/components/common/form/InputCaptcha.astro';
 import Feedback from '@/components/common/form/Feedback.astro';
 
 interface Props {
-	translations: Translation.SignInForm;
+	tSignIn: Translation.SignInForm;
+    tCaptcha: Translation.Captcha;
 };
 
-const { translations } = Astro.props;
+const { tSignIn, tCaptcha } = Astro.props;
 
 const apiToken = await createApiToken(import.meta.env.API_KEY, import.meta.env.JWT_ENCRYPTION_KEY);
 ---
 
-<h2 id="signin-modal-title" class="text-center text-2xl font-medium text-neutral-800">{translations.title}</h2>
+<h2 id="signin-modal-title" class="text-center text-2xl font-medium text-neutral-800">{tSignIn.title}</h2>
 
 <p class="mt-2 text-center text-base text-neutral-800">
-    {translations.subtitle.text} 
-    <button type="button" class="ms-1 underline text-neutral-600 font-medium" data-multistep-target="signin-in" aria-label="">
-        {translations.subtitle.action}
+    {tSignIn.subtitle.text} 
+    <button type="button" class="ms-1 underline text-neutral-600 font-medium" data-multistep-target="sign-up" aria-label="">
+        {tSignIn.subtitle.action}
     </button>
 </p>
 
@@ -32,26 +33,26 @@ const apiToken = await createApiToken(import.meta.env.API_KEY, import.meta.env.J
 
     <Input id="signin-email" type="email" name="email" autocomplete="email" spellcheck="false" validate="email"
         minlength={fieldLimits.email.minLength} maxlength={fieldLimits.email.maxLength}
-        label={translations.form.fields.email.label} messages={translations.form.fields.email.validation} required
+        label={tSignIn.form.fields.email.label} messages={tSignIn.form.fields.email.validation} required
     />
 
     <InputPassword id="signin-password" type="password" name="password" autocomplete="current-password" validate="current-password"
-        minlength={fieldLimits.password.minLength} maxlength={fieldLimits.password.maxLength} translations={translations.form.fields.newPassword} required
+        minlength={fieldLimits.password.minLength} maxlength={fieldLimits.password.maxLength} translations={tSignIn.form.fields.currentPassword} required
     />
 
-    <InputCaptcha id="signin-captcha-slider" translations={translations.form.fields.captcha}/>
+    <InputCaptcha id="signin-captcha-slider" translations={tCaptcha}/>
 
     <!-- <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
     <div class="cf-turnstile" data-sitekey={import.meta.env.PUBLIC_TURNSTILE_SITE_KEY}></div> -->
 
-    <Feedback type="form" messages={translations.form.error} />
+    <Feedback type="form" messages={tSignIn.form.error} />
 
     <ToggleButton id="signin-submit" type="submit" class="w-full h-11 px-4 rounded-3xl text-white flex items-center justify-center bg-blue-500 transition-opacity duration-300 ease-in-out disabled:opacity-70 disabled:cursor-not-allowed disabled:pointer-events-none" ariaLabelActive="Enviando formulario" ariaLabelInactive="Enviar formulario" mode="busy" disabled>
 
         <IconLoad class="size-8 hidden" data-toggle-button-active/>
     
-        <span class="text-lg font-medium" data-toggle-button-inactive>{translations.form.actions.submit}</span>
+        <span class="text-lg font-medium" data-toggle-button-inactive>{tSignIn.form.actions.submit}</span>
 
     </ToggleButton>
         			    
