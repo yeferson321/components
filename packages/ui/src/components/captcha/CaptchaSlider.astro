@@ -1,26 +1,4 @@
 ---
-/*
- * Captcha slider: el componente solo controla el <div> raíz; toda la estructura visual
- * la define el usuario dentro del slot. Lo único que el usuario aporta es su HTML, los
- * data-* de abajo (para que el componente sepa qué mover) y el color según el estado
- * (vía [data-captcha] en la raíz: "idle" | "verifying" | "verified" | "error").
- *
- * Elementos requeridos dentro del slot:
- * - [data-captcha-track]: el riel sobre el que se desliza el handle (position: relative).
- * - [data-captcha-handle]: el botón que se arrastra (position: absolute; su propio aria-label).
- * - [data-captcha-status]: el texto de estado; debe traer data-messages con
- *   JSON.stringify({ idle, verifying, verified, error }).
- *
- * Elementos opcionales (cada uno con position: absolute en tu CSS), el componente les
- * fija left/width y la transición — no hace falta escribir calc() ni transition para esto:
- * - [data-captcha-piece]: la pieza que se mueve junto con el handle (sigue --r).
- * - [data-captcha-hole]: el hueco objetivo (sigue --t, solo cambia al iniciar un round).
- * - [data-captcha-fill]: relleno de progreso dentro del riel (su width sigue --r).
- *
- * Emite `captcha:change` (detail: { state }), burbujea. Reinicio: evento `captcha:reset`
- * en el elemento, o `captcha:reset:<id>` global si el captcha tiene id.
- */
-
 interface Props {
     id?: string;
     class?: string;
@@ -29,13 +7,11 @@ interface Props {
 const { id, class: className } = Astro.props;
 ---
 
-<div id={id} class:list={["captcha", className]} data-captcha-type="slider" data-captcha="idle">
+<div id={id} class:list={["captcha", className]} data-captcha-type="slider" data-captcha-id={id} data-captcha="idle">
     <slot />
 </div>
 
 <style is:global>
-/* is:global a propósito: el contenido del slot lo renderiza quien usa el componente,
-   no CaptchaSlider, así que un <style> con scope normal de Astro nunca lo alcanza. */
 .captcha {
     --r: 0;
     --t: 0.5;
@@ -65,107 +41,130 @@ const { id, class: className } = Astro.props;
 </style>
 
 <script>
-    import { createCaptcha, type CaptchaElement } from './captcha';
-
+    type CaptchaState = 'idle' | 'verifying' | 'verified' | 'error';
+ 
+    type CaptchaChangeDetail = { state: CaptchaState };
+ 
+    declare global {
+        interface HTMLElementEventMap {
+            'captcha:change': CustomEvent<CaptchaChangeDetail>;
+        }
+ 
+        interface WindowEventMap {
+            [key: `captcha:change:${string}`]: CustomEvent<CaptchaChangeDetail>;
+        }
+    }
+ 
     const TOLERANCE = 8; // px de margen para considerar que la pieza encajó
-
-    const setupSlider = (root: CaptchaElement) => {
-        const track = root.querySelector<HTMLElement>('[data-captcha-track]');
-        const handle = root.querySelector<HTMLButtonElement>('[data-captcha-handle]');
-        if (!track || !handle) throw new Error('CaptchaSlider: internal element(s) [data-captcha-track]/[data-captcha-handle] not found.');
-
-        // El tamaño del handle puede ser 0 al montar (p. ej. dentro de un Modal todavía
-        // cerrado, con display: none) o al volver a ocultarse. Se ignoran esas mediciones en 0
-        // y se conserva el último tamaño real conocido: si no, --captcha-handle-size oscilaría
-        // entre 0 y el tamaño real en cada apertura, y la transición de los elementos animaría
-        // ese salto como si se movieran solos.
-        //
-        // data-captcha-measuring desactiva esa misma transición mientras aún no hay una medición
-        // real: sin esto, la primera corrección (del 0px inicial al tamaño real del handle) se
-        // animaría igual, aunque las siguientes aperturas ya queden estables.
-        root.dataset.captchaMeasuring = 'true';
-
+ 
+    const setupSlider = (captchaElement: HTMLElement) => {
+        const { captchaId } = captchaElement.dataset;
+        if (!captchaId) throw new Error('Missing "data-captcha-id" attribute on CaptchaSlider component');
+ 
+        const trackElement = captchaElement.querySelector<HTMLElement>('[data-captcha-track]');
+        if (!trackElement) throw new Error(`CaptchaSlider "${captchaId}": component internal element [data-captcha-track] not found.`);
+ 
+        const handleElement = captchaElement.querySelector<HTMLButtonElement>('[data-captcha-handle]');
+        if (!handleElement) throw new Error(`CaptchaSlider "${captchaId}": component internal element [data-captcha-handle] not found.`);
+ 
+        captchaElement.dataset.captchaMeasuring = 'true';
+ 
         new ResizeObserver(([entry]) => {
             const width = entry.contentRect.width;
             if (width <= 0) return;
-
-            root.style.setProperty('--captcha-handle-size', `${width}px`);
-
-            if (root.dataset.captchaMeasuring) {
-                requestAnimationFrame(() => { delete root.dataset.captchaMeasuring; });
+ 
+            captchaElement.style.setProperty('--captcha-handle-size', `${width}px`);
+ 
+            if (captchaElement.dataset.captchaMeasuring) {
+                requestAnimationFrame(() => { delete captchaElement.dataset.captchaMeasuring; });
             }
-        }).observe(handle);
-
-        // r = posición de la pieza y t = posición del hueco, ambas en proporción 0–1 del recorrido.
+        }).observe(handleElement);
+ 
         let r = 0;
         let t = 0;
         let timer = 0;
-
-        const maxPx = () => track.clientWidth - handle.offsetWidth;
+ 
+        const maxPx = () => trackElement.clientWidth - handleElement.offsetWidth;
         const clamp = (value: number) => Math.min(1, Math.max(0, value));
-        const paint = () => root.style.setProperty('--r', String(r));
-        const locked = () => ['verifying', 'verified'].includes(root.dataset.captcha ?? '');
-
+        const paint = () => captchaElement.style.setProperty('--r', String(r));
+        const locked = () => ['verifying', 'verified'].includes(captchaElement.dataset.captcha ?? '');
+ 
         const newRound = () => {
             t = 0.3 + Math.random() * 0.55;
             r = 0;
-            root.style.setProperty('--t', String(t));
+            captchaElement.style.setProperty('--t', String(t));
             paint();
         };
-
-        const captcha = createCaptcha(root, () => {
+ 
+        const statusElement = captchaElement.querySelector<HTMLElement>('[data-captcha-status]');
+        const messages: Record<string, string> = JSON.parse(statusElement?.dataset.messages ?? '{}');
+        if (statusElement) delete statusElement.dataset.messages;
+ 
+        const setState = (state: CaptchaState) => {
+            if (captchaElement.dataset.captcha === state) return;
+ 
+            captchaElement.dataset.captcha = state;
+            if (statusElement) statusElement.textContent = messages[state] ?? '';
+ 
+            const detail = { state };
+            // captchaElement.dispatchEvent(new CustomEvent<CaptchaChangeDetail>('captcha:change', { bubbles: true, detail }));
+            window.dispatchEvent(new CustomEvent<CaptchaChangeDetail>(`captcha:change:${captchaId}`, { detail }));
+        };
+ 
+        const reset = () => {
             clearTimeout(timer);
             newRound();
-        });
-
+            setState('idle');
+        };
+ 
         const finish = () => {
             if (Math.abs(r - t) * maxPx() <= TOLERANCE) {
                 r = t;
                 paint();
-                captcha.setState('verifying');
-                timer = window.setTimeout(() => captcha.setState('verified'), 400);
+                setState('verifying');
+                timer = window.setTimeout(() => setState('verified'), 400);
             } else {
-                captcha.setState('error');
-                timer = window.setTimeout(() => root.reset?.(), 1100);
+                setState('error');
+                timer = window.setTimeout(reset, 1100);
             }
         };
-
-        handle.addEventListener('pointerdown', (event) => {
+ 
+        handleElement.addEventListener('pointerdown', (event) => {
             const max = maxPx();
             if (locked() || max <= 0) return;
-
+ 
             clearTimeout(timer);
-            if (root.dataset.captcha === 'error') root.reset?.();
-
+            if (captchaElement.dataset.captcha === 'error') reset();
+ 
             const startX = event.clientX;
             const startR = r;
-            handle.setPointerCapture(event.pointerId);
-            root.dataset.dragging = 'true';
-
+            handleElement.setPointerCapture(event.pointerId);
+            captchaElement.dataset.dragging = 'true';
+ 
             const move = (e: PointerEvent) => {
                 r = clamp(startR + (e.clientX - startX) / max);
                 paint();
             };
             const end = () => {
-                handle.removeEventListener('pointermove', move);
-                handle.removeEventListener('pointerup', end);
-                handle.removeEventListener('pointercancel', end);
-                root.dataset.dragging = 'false';
+                handleElement.removeEventListener('pointermove', move);
+                handleElement.removeEventListener('pointerup', end);
+                handleElement.removeEventListener('pointercancel', end);
+                captchaElement.dataset.dragging = 'false';
                 finish();
             };
-
-            handle.addEventListener('pointermove', move);
-            handle.addEventListener('pointerup', end);
-            handle.addEventListener('pointercancel', end);
+ 
+            handleElement.addEventListener('pointermove', move);
+            handleElement.addEventListener('pointerup', end);
+            handleElement.addEventListener('pointercancel', end);
         });
-
+ 
         // Teclado: flechas mueven la pieza, Enter confirma.
-        handle.addEventListener('keydown', (event) => {
+        handleElement.addEventListener('keydown', (event) => {
             if (locked()) return;
-
+ 
             if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
                 event.preventDefault();
-                if (root.dataset.captcha === 'error') root.reset?.();
+                if (captchaElement.dataset.captcha === 'error') reset();
                 r = clamp(r + (event.key === 'ArrowRight' ? 0.02 : -0.02));
                 paint();
             } else if (event.key === 'Enter') {
@@ -173,9 +172,12 @@ const { id, class: className } = Astro.props;
                 finish();
             }
         });
-
+ 
+        captchaElement.addEventListener('captcha:reset', reset);
+        window.addEventListener(`captcha:reset:${captchaId}`, reset);
+ 
         newRound();
     };
-
-    document.querySelectorAll<CaptchaElement>('[data-captcha-type="slider"]').forEach(setupSlider);
+ 
+    document.querySelectorAll<HTMLElement>('[data-captcha-type="slider"]').forEach(setupSlider);
 </script>

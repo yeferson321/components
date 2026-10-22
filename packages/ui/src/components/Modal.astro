@@ -94,6 +94,18 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
 <script>
     import { appendChildElement, removeElement, trapFocus } from '#/utils/overlay';
 
+    type ModalChangeDetail = { isOpen: boolean };
+
+    declare global {
+        interface HTMLElementEventMap {
+            'modal:change': CustomEvent<ModalChangeDetail>;
+        }
+
+        interface WindowEventMap {
+            [key: `modal:change:${string}`]: CustomEvent<ModalChangeDetail>;
+        }
+    };
+
     const setupModal = (modalElement: HTMLDivElement) => {
         const { modalId, unmount } = modalElement.dataset;
         if (!modalId) throw new Error('Missing "data-modal-id" attribute on Modal component');
@@ -112,6 +124,10 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
             modalElement.dataset.state = isHidden ? "closed" : "open";
             modalElement.setAttribute("aria-hidden", String(isHidden));
             openButtonElement?.setAttribute("aria-expanded", String(!isHidden));
+
+            const detail: ModalChangeDetail = { isOpen: !isHidden };
+            // modalElement.dispatchEvent(new CustomEvent('modal:change', { bubbles: true, detail }));
+            window.dispatchEvent(new CustomEvent(`modal:change:${modalId}`, { detail }));
         };
 
         const handleKeyboard = (event: KeyboardEvent) => {

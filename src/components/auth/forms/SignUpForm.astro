@@ -7,7 +7,7 @@ import { IconLoad } from 'ui/icons/solid';
 import Input from '@/components/common/form/Input.astro';
 import InputPassword from '@/components/common/form/InputPassword.astro';
 import InputCheckbox from '@/components/common/form/InputCheckbox.astro';
-import InputCaptcha from '@/components/common/form/InputCaptcha.astro';
+import Captcha from '@/components/common/form/Captcha.astro';
 import Feedback from '@/components/common/form/Feedback.astro';
 
 interface Props {
@@ -44,10 +44,10 @@ const apiToken = await createApiToken(import.meta.env.API_KEY, import.meta.env.J
     <InputPassword id="signup-password" type="password" name="password" autocomplete="new-password" validate="new-password"
         minlength={fieldLimits.password.minLength} maxlength={fieldLimits.password.maxLength} translations={tSignUp.form.fields.newPassword} required
     />
-    
+
     <InputCheckbox id="signup-checkbox" name="terms" label={tSignUp.form.fields.terms.label} messages={tSignUp.form.fields.terms.validation} required />
 
-    <InputCaptcha id="signup-captcha-slider" translations={tCaptcha}/>
+    <Captcha id="signup" translations={tCaptcha}/>
 
     <!-- <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
@@ -82,6 +82,7 @@ const apiToken = await createApiToken(import.meta.env.API_KEY, import.meta.env.J
 
     const resetForm = () => {
         window.dispatchEvent(new CustomEvent('toggle-button:deactivate:signup-submit'));
+
         window.dispatchEvent(new CustomEvent('captcha:reset:signup-captcha-slider'));
     };
    

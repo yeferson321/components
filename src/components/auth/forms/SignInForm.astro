@@ -7,7 +7,7 @@ import { IconLoad } from 'ui/icons/solid';
 import Input from '@/components/common/form/Input.astro';
 import InputPassword from '@/components/common/form/InputPassword.astro';
 import InputCheckbox from '@/components/common/form/InputCheckbox.astro';
-import InputCaptcha from '@/components/common/form/InputCaptcha.astro';
+import Captcha from '@/components/common/form/Captcha.astro';
 import Feedback from '@/components/common/form/Feedback.astro';
 
 interface Props {
@@ -40,7 +40,7 @@ const apiToken = await createApiToken(import.meta.env.API_KEY, import.meta.env.J
         minlength={fieldLimits.password.minLength} maxlength={fieldLimits.password.maxLength} translations={tSignIn.form.fields.currentPassword} required
     />
 
-    <InputCaptcha id="signin-captcha-slider" translations={tCaptcha}/>
+    <Captcha id="signin" translations={tCaptcha}/>
 
     <!-- <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
