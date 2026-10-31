@@ -43,8 +43,8 @@
                     "submit": "Iniciar sesión"
                 },
                 "error": {
-                    "SERVER_ERROR": "Hubo un problema, inténtelo de nuevo.",
-                    "BAD_REQUEST": "Alguno de sus datos es incorrecto."
+                    "CONFLICT": "Alguno de sus datos es incorrecto.",
+                    "INTERNAL_SERVER_ERROR": "Hubo un problema, inténtelo de nuevo."
                 }
             }
         },
@@ -138,15 +138,17 @@
         "social": {
             "title": "También puedes usar",
             "google": {
+                "text": "Continuar con Google",
                 "ariaLabel": "Iniciar sesión con Google"
             },
-            "apple": {
+            "x": {
+                "text": "Continuar con X",
                 "ariaLabel": "Iniciar sesión con Apple"
             }
         },
 
         "terms": {
-            "text": "Al registrarte, aceptas nuestras",
+            "text": "Al continuar, aceptas nuestras",
             "termsOfUse": "Condiciones de Uso",
             "privacyPolicy": "Política de Privacidad"
         },

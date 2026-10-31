@@ -8,8 +8,7 @@
   "exports": {
     "./components": "./src/components/index.ts",
 
-    "./icons/brands/color": "./src/icons/brands/color/index.ts",
-
+    "./icons/brands": "./src/icons/brands/index.ts",
     "./icons/outline": "./src/icons/outline/index.ts",
     "./icons/solid": "./src/icons/solid/index.ts",
 

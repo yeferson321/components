@@ -16,6 +16,12 @@ const { type, messages } = Astro.props;
     </div>
 </div>
 
+<script>
+    import { getFeedback } from 'ui/behaviors';
+ 
+    document.querySelectorAll<HTMLElement>('[data-feedback]').forEach((element) => getFeedback(element));
+</script>
+
 <style is:global>
 .feedback {
     display: none;

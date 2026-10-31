@@ -21,7 +21,7 @@ interface Props {
 const { id, class: className, overlayColor, offset, verticalPosition = 'center', unmount = false } = Astro.props;
 ---
 
-<div id={id} class:list={["modal", className]} data-modal-id={id} data-state="closed" data-vertical={verticalPosition} data-unmount={unmount} aria-labelledby={`${id}-title`} tabindex="-1" role="dialog" aria-modal="true" aria-hidden="true">
+<div id={id} class:list={["modal", className]} data-modal-id={id} data-state="closed" data-vertical={verticalPosition} data-unmount={String(unmount)} aria-labelledby={`${id}-title`} tabindex="-1" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="modal-overlay" style={overlayColor && `--overlay-color: ${overlayColor};`}></div>
     <div class="modal-wrapper">
         <div class="modal-positioner" style={offset && `--offset: ${offset};`}>

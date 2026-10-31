@@ -55,7 +55,7 @@ const apiToken = await createApiToken(import.meta.env.API_KEY, import.meta.env.J
 
     <Feedback type="form" messages={tSignUp.form.error} />
 
-    <ToggleButton id="signup-submit" type="submit" class="w-full h-11 px-4 rounded-3xl text-white flex items-center justify-center bg-blue-500 transition-opacity duration-300 ease-in-out disabled:opacity-70 disabled:cursor-not-allowed disabled:pointer-events-none" ariaLabelActive="Enviando formulario" ariaLabelInactive="Enviar formulario" mode="busy" disabled>
+    <ToggleButton id="signup-submit" type="submit" class="w-full h-12 px-4 rounded-3xl text-white flex items-center justify-center bg-blue-500 transition-opacity duration-300 ease-in-out disabled:opacity-70 disabled:cursor-not-allowed disabled:pointer-events-none" ariaLabelActive="Enviando formulario" ariaLabelInactive="Enviar formulario" mode="busy" disabled>
 
         <IconLoad class="size-8 hidden" data-toggle-button-active/>
     
@@ -81,9 +81,8 @@ const apiToken = await createApiToken(import.meta.env.API_KEY, import.meta.env.J
     const apiToken = form?.dataset.apiToken;
 
     const resetForm = () => {
-        window.dispatchEvent(new CustomEvent('toggle-button:deactivate:signup-submit'));
-
-        window.dispatchEvent(new CustomEvent('captcha:reset:signup-captcha-slider'));
+        window.dispatchEvent(new Event('toggle-button:deactivate:signup-submit'));
+        window.dispatchEvent(new Event('captcha:reset:signup-captcha-slider'));
     };
    
     if (form) {
@@ -113,27 +112,22 @@ const apiToken = await createApiToken(import.meta.env.API_KEY, import.meta.env.J
             window.location.href = '/profile';
         });
     }
-
-    // if (form) {
-    //     const { setFieldsError, setFormError } = setupForm<SignUpForm>(form, async (data) => {
-
-    //         const { error } = await actions.register(data);
-
-    //         console.log("error completo:", error);
-
-    //         if (error) {
-                
-    //             if (error.code === "CONFLICT") {
-    //                 setFieldsError({ email: "CONFLICT" });
-    //             } else {
-    //                 setFormError("INTERNAL_SERVER_ERROR");
-    //             }
-
-    //             window.dispatchEvent(new CustomEvent("toggle-button:deactivate:signup-submit"));
-    //             return;
-    //         }
-
-    //         window.location.href = "/profile";
-    //     });
-    // }
 </script>
+
+     <!-- if (form) {
+         const { setFieldsError, setFormError } = setupForm<SignUpForm>(form, async (data) => {
+             const { error } = await actions.register(data);
+             console.log("error completo:", error);
+             if (error) {
+             
+                 if (error.code === "CONFLICT") {
+                     setFieldsError({ email: "CONFLICT" });
+                 } else {
+                     setFormError("INTERNAL_SERVER_ERROR");
+                 }
+                 window.dispatchEvent(new CustomEvent("toggle-button:deactivate:signup-submit"));
+                 return;
+             }
+             window.location.href = "/profile";
+         });
+     } -->

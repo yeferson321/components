@@ -6,7 +6,7 @@ import { Modal, MultiStep } from 'ui/components';
 import SignInForm from './auth/forms/SignInForm.astro';
 import SignUpForm from './auth/forms/SignUpForm.astro';
 import { IconXmark } from 'ui/icons/outline';
-import { IconGoogle, IconApple } from 'ui/icons/brands/color';
+import { IconGoogle, IconX } from 'ui/icons/brands';
 
 interface Props {
 	translations: Translation;
@@ -18,22 +18,14 @@ const { translations: t } = Astro.props;
 <Modal id="login-modal" verticalPosition="center" overlayColor="rgba(0,0,0,0.5)" offset="2rem" unmount={false}>
 					
     <div class="px-8 pt-12 pb-8 sm:my-8 sm:w-full sm:max-w-lg rounded-3xl border border-neutral-200/70 bg-white">
-						
-		<!-- <h2 id="login-modal-title" class="text-center text-2xl font-medium text-neutral-800">Ingresa tu correo electronico</h2>
 
-		<p class="mt-2 text-center text-base font-medium text-neutral-600">Si no tienes una cuenta, se te indicará crear una.</p>
+		<MultiStep unmount={true}>
 
-		<button type="button" class="mt-2 text-center text-base font-medium text-neutral-600" data-modal-open="sign-up-modal" aria-label="Abrir modal de registro">	
-			Regitrate
-		</button> -->
-
-		<MultiStep>
-
-			<div class="auth-view" data-multistep-view="sign-in" data-active="false">
+			<div data-multistep-view="sign-in" data-active="false">
 				<SignInForm tSignIn={t.home.loginModal.signIn} tCaptcha={t.common.captcha}/>
 			</div>
 			
-			<div class="auth-view" data-multistep-view="sign-up" data-active="true">
+			<div data-multistep-view="sign-up" data-active="true">
 				<SignUpForm tSignUp={t.home.loginModal.signUp} tCaptcha={t.common.captcha}/>
 			</div>
 
@@ -41,14 +33,16 @@ const { translations: t } = Astro.props;
 
 		<p class="mt-6 text-center text-base text-neutral-800">{t.home.loginModal.social.title}</p>
 					
-        <div class="mt-4 flex gap-3">
+        <div class="mt-4 space-y-4">
 
-        	<button class="flex-1 flex items-center justify-center h-11 px-2 rounded-2xl border border-neutral-200/70 bg-neutral-100" aria-label={t.home.loginModal.social.google.ariaLabel}>
-        	    <IconGoogle width="24" height="24"/>
+        	<button class="w-full flex justify-center items-center gap-3 h-12 px-4 rounded-3xl border border-neutral-200/70 bg-neutral-100" aria-label={t.home.loginModal.social.google.ariaLabel}>
+        	    <IconGoogle width="20" height="20"/>
+				<span class="text-base font-medium text-neutral-600">{t.home.loginModal.social.google.text}</span>
         	</button>
 						
-        	<button class="flex-1 flex items-center justify-center h-11 px-2 rounded-2xl border border-neutral-200/70  bg-neutral-100" aria-label={t.home.loginModal.social.apple.ariaLabel}>
-        	    <IconApple width="24" height="24"/>
+        	<button class="w-full flex justify-center items-center gap-3 h-12 px-4 rounded-3xl border border-neutral-200/70 bg-neutral-100" aria-label={t.home.loginModal.social.x.ariaLabel}>
+        	    <IconX width="20" height="20"/>
+				<span class="text-base font-medium text-neutral-600">{t.home.loginModal.social.x.text}</span>
         	</button>
 
         </div>
@@ -65,6 +59,10 @@ const { translations: t } = Astro.props;
 
 </Modal>
 
+<style>
+
+</style>
+
 
 <!-- <script>
 	const multiStepElement = document.querySelector<HTMLDivElement>("[data-multi-step]");
@@ -80,13 +78,3 @@ const { translations: t } = Astro.props;
 
 	signUpButton?.addEventListener("click", hola);
 </script> -->
-
-<!-- <style>
-.auth-view {
-    display: none;
-}
-
-.auth-view[data-active="true"] {
-    display: block;
-}
-</style> -->

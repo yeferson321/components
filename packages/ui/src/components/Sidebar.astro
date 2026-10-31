@@ -20,7 +20,7 @@ interface Props {
 const { id, class: className, overlayColor, offset, horizontalPosition = 'right', unmount = false } = Astro.props;
 ---
            
-<div id={id} class:list={["sidebar", className]} data-sidebar-id={id} data-state="closed" data-horizontal={horizontalPosition} data-unmount={unmount} tabindex="-1" role="dialog" aria-modal="true" aria-hidden="true">
+<div id={id} class:list={["sidebar", className]} data-sidebar-id={id} data-state="closed" data-horizontal={horizontalPosition} data-unmount={String(unmount)} tabindex="-1" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="sidebar-overlay" style={overlayColor && `--overlay-color: ${overlayColor};`}></div>
     <div class="sidebar-wrapper">
         <div class="sidebar-panel" style={offset && `--offset: ${offset};`}>

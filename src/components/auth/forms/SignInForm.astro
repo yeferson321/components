@@ -48,7 +48,7 @@ const apiToken = await createApiToken(import.meta.env.API_KEY, import.meta.env.J
 
     <Feedback type="form" messages={tSignIn.form.error} />
 
-    <ToggleButton id="signin-submit" type="submit" class="w-full h-11 px-4 rounded-3xl text-white flex items-center justify-center bg-blue-500 transition-opacity duration-300 ease-in-out disabled:opacity-70 disabled:cursor-not-allowed disabled:pointer-events-none" ariaLabelActive="Enviando formulario" ariaLabelInactive="Enviar formulario" mode="busy" disabled>
+    <ToggleButton id="signin-submit" type="submit" class="w-full h-12 px-4 rounded-3xl text-white flex items-center justify-center bg-blue-500 transition-opacity duration-300 ease-in-out disabled:opacity-70 disabled:cursor-not-allowed disabled:pointer-events-none" ariaLabelActive="Enviando formulario" ariaLabelInactive="Enviar formulario" mode="busy" disabled>
 
         <IconLoad class="size-8 hidden" data-toggle-button-active/>
     
@@ -62,7 +62,7 @@ const apiToken = await createApiToken(import.meta.env.API_KEY, import.meta.env.J
     import { actions } from 'astro:actions';
     import { setupForm } from 'ui/behaviors';
 
-    type SignUpForm = {
+    type SignInForm = {
         name: string;
         email: string;
         password: string;
@@ -70,17 +70,17 @@ const apiToken = await createApiToken(import.meta.env.API_KEY, import.meta.env.J
         captcha?: string;
     };
 
-    const form = document.getElementById('signup-form') as HTMLFormElement | null;
+    const form = document.getElementById('signin-form') as HTMLFormElement | null;
     const apiToken = form?.dataset.apiToken;
 
     const resetForm = () => {
-        window.dispatchEvent(new CustomEvent('toggle-button:deactivate:signup-submit'));
-        window.dispatchEvent(new CustomEvent('captcha:reset:signup-captcha-slider'));
+        window.dispatchEvent(new CustomEvent('toggle-button:deactivate:signin-submit'));
+        window.dispatchEvent(new CustomEvent('captcha:reset:signin-captcha-slider'));
     };
    
     if (form) {
         
-        const { setFieldsError, setFormError } = setupForm<SignUpForm>(form, async (data) => {
+        const { setFieldsError, setFormError } = setupForm<SignInForm>(form, async (data) => {
 
             const response = await fetch('/api/auth/register', {
                 method: 'POST',

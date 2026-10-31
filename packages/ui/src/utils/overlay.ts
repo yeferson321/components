@@ -1,4 +1,4 @@
-export const appendChildElement = (element: HTMLElement) => document.body.appendChild(element);
+export const appendChildElement = (element: HTMLElement, parent?: HTMLElement) => (parent ?? document.body).appendChild(element);
 export const removeElement = (element: HTMLElement) => element.remove();
 
 export const trapFocus = (element: HTMLElement, event: KeyboardEvent) => {

@@ -4,7 +4,7 @@ import { Sidebar } from 'ui/components';
 import Layout from '@/layouts/Layout.astro';
 import LoginModal from '@/components/LoginModal.astro';
 import { IconHeart, IconXmark } from 'ui/icons/outline';
-import { IconGoogle, IconApple } from 'ui/icons/brands/color';
+import { IconGoogle, IconX } from 'ui/icons/brands';
 
 const locale = resolveLocale(Astro.preferredLocale);
 const t = await getI18n(locale, ["home"]);
@@ -35,8 +35,8 @@ const t = await getI18n(locale, ["home"]);
 	    	    <IconGoogle width="24" height="24"/>
 	    	</button>
 
-	    	<button class="flex-1 flex items-center justify-center h-11 px-2 rounded-2xl border border-neutral-200/70  bg-neutral-100" aria-label={t.home.loginModal.social.apple.ariaLabel}>
-	    	    <IconApple width="24" height="24"/>
+	    	<button class="flex-1 flex items-center justify-center h-11 px-2 rounded-2xl border border-neutral-200/70  bg-neutral-100" aria-label={t.home.loginModal.social.x.ariaLabel}>
+	    	    <IconX width="24" height="24"/>
 	    	</button>
 	    </div>
 

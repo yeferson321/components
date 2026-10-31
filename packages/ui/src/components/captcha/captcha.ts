@@ -1,3 +1,5 @@
+import { getFeedback } from '../../behaviors/feedback';
+
 export type CaptchaState = 'idle' | 'verifying' | 'verified' | 'error';
 
 export type CaptchaChangeDetail = { state: CaptchaState };
@@ -8,29 +10,32 @@ export type CaptchaElement = HTMLElement & {
     reset?: () => void;
 };
 
+declare global {
+    interface HTMLElementEventMap {
+        'captcha:change': CustomEvent<CaptchaChangeDetail>;
+    }
+}
 
-export const createCaptcha = (captchaElement: CaptchaElement, onReset: () => void, statusSelector = '[data-captcha-status]') => {
-    const statusElement = captchaElement.querySelector<HTMLElement>(statusSelector);
-    const messages: Record<string, string> = JSON.parse(statusElement?.dataset.messages ?? '{}');
-    if (statusElement) delete statusElement.dataset.messages;
+export const createCaptcha = (root: CaptchaElement, onReset: () => void, statusSelector = '[data-feedback="captcha"], [data-captcha-status]') => {
+    const feedback = getFeedback(root.querySelector<HTMLElement>(statusSelector));
+    feedback?.show(root.dataset.captcha ?? 'idle'); // el Feedback nace vacío: muestra el estado inicial
 
     const setState = (state: CaptchaState) => {
-        if (captchaElement.dataset.captcha === state) return;
+        if (root.dataset.captcha === state) return;
 
-        captchaElement.dataset.captcha = state;
-        if (statusElement) statusElement.textContent = messages[state] ?? '';
-
-        const detail = { state };
-        captchaElement.dispatchEvent(new CustomEvent<CaptchaChangeDetail>('captcha:change', { bubbles: true, detail }));
-        window.dispatchEvent(new CustomEvent<CaptchaChangeDetail>(`captcha:change:${captchaElement.id}`, { detail }));
+        root.dataset.captcha = state;
+        feedback?.show(state);
+        root.dispatchEvent(new CustomEvent<CaptchaChangeDetail>('captcha:change', { bubbles: true, detail: { state } }));
     };
 
-    captchaElement.getState = () => captchaElement.dataset.captcha as CaptchaState;
-    
-    captchaElement.reset = () => {
+    root.getState = () => root.dataset.captcha as CaptchaState;
+    root.reset = () => {
         onReset();
         setState('idle');
     };
+
+    root.addEventListener('captcha:reset', () => root.reset?.());
+    if (root.id) window.addEventListener(`captcha:reset:${root.id}`, () => root.reset?.());
 
     return { setState };
 };
