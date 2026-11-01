@@ -93,6 +93,7 @@ const { id, class: className, overlayColor, offset, horizontalPosition = 'right'
 
 <script>
     import { appendChildElement, removeElement, trapFocus } from '#/utils/overlay';
+    import type { ChangeDetail } from '#/components/types.ts';
 
     const setupSidebar = (sidebarElement: HTMLDivElement) => {
         const { sidebarId, unmount } = sidebarElement.dataset; 
@@ -112,6 +113,10 @@ const { id, class: className, overlayColor, offset, horizontalPosition = 'right'
             sidebarElement.dataset.state = isHidden ? "closed" : "open";
             sidebarElement.setAttribute("aria-hidden", String(isHidden));
             openButtonElement?.setAttribute("aria-expanded", String(!isHidden));
+
+            const detail: ChangeDetail = { isOpen: !isHidden };
+            sidebarElement.dispatchEvent(new CustomEvent('sidebar:change', { detail }));
+            window.dispatchEvent(new CustomEvent(`sidebar:change:${sidebarId}`, { detail }));
         };
 
         const handleKeyboard = (event: KeyboardEvent) => {

@@ -93,18 +93,7 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
 
 <script>
     import { appendChildElement, removeElement, trapFocus } from '#/utils/overlay';
-
-    type ModalChangeDetail = { isOpen: boolean };
-
-    declare global {
-        interface HTMLElementEventMap {
-            'modal:change': CustomEvent<ModalChangeDetail>;
-        }
-
-        interface WindowEventMap {
-            [key: `modal:change:${string}`]: CustomEvent<ModalChangeDetail>;
-        }
-    };
+    import type { ChangeDetail } from '#/components/types.ts';
 
     const setupModal = (modalElement: HTMLDivElement) => {
         const { modalId, unmount } = modalElement.dataset;
@@ -125,8 +114,8 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
             modalElement.setAttribute("aria-hidden", String(isHidden));
             openButtonElement?.setAttribute("aria-expanded", String(!isHidden));
 
-            const detail: ModalChangeDetail = { isOpen: !isHidden };
-            // modalElement.dispatchEvent(new CustomEvent('modal:change', { bubbles: true, detail }));
+            const detail: ChangeDetail = { isOpen: !isHidden };
+            modalElement.dispatchEvent(new CustomEvent('modal:change', { detail }));
             window.dispatchEvent(new CustomEvent(`modal:change:${modalId}`, { detail }));
         };
 
@@ -142,6 +131,8 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
 
             if (unmount === "true") appendChildElement(modalElement);
             modalElement.dataset.state = "opening";
+
+            void modalElement.offsetHeight;
 
             requestAnimationFrame(() => {
                 setAccessibility(false);

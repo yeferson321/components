@@ -84,6 +84,11 @@ const apiToken = await createApiToken(import.meta.env.API_KEY, import.meta.env.J
         window.dispatchEvent(new Event('toggle-button:deactivate:signup-submit'));
         window.dispatchEvent(new Event('captcha:reset:signup-captcha-slider'));
     };
+
+    window.addEventListener('modal:change:login-modal', (event) => {
+        console.log("event", event.detail.isOpen)
+        // if (event.detail.state === 'verified') submitButtonElement.disabled = false;
+    });
    
     if (form) {
         
