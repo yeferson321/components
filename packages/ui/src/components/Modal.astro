@@ -37,6 +37,8 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
     display: none;
     position: relative;
     z-index: 50;
+    --transition-duration: 300ms;
+    --transition-timing: ease-in-out;
 }
 
 .modal:not([data-state="closed"]) {
@@ -149,7 +151,7 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
 
             modalElement.removeEventListener("keydown", handleKeyboard);
             // El foco sale antes de marcar aria-hidden="true".
-            lastFocusedElement?.focus();
+            // lastFocusedElement?.focus();
             modalElement.dataset.state = "closing";
 
             // Resuelve al instante si no hay animaciones en curso.
