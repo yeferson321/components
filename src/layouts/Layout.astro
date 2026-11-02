@@ -27,113 +27,217 @@ const { locale, translations: t } = Astro.props;
 		<slot />
 
 
-		<button id="test-modal-open">Open modal</button>
+			<!-- id="login-modal" verticalPosition="center" overlayColor="rgba(255,0,0,0.5)" offset="2rem" unmount={false}
+		 -->
 
-<div id="test-modal" class="test-modal">
-    <div class="test-modal-overlay"></div>
+		 <button type="button" class="p-2.5 rounded-full bg-blue-500/20 hover:bg-blue-500/30 transition-colors duration-300 ease-in-out" data-modal-open="prueba-modal" aria-label="Abrir modal de inicio de sesión" aria-haspopup="dialog" aria-expanded="false" aria-controls="prueba-modal">
+	x
+</button>
 
-    <div class="test-modal-panel">
-        <h2>Test modal werfiojweorjfojweorjfoi</h2>
-        <button id="test-modal-close">Close</button>
+		<div id="prueba-modal" class="modal" data-modal-id="prueba-modal" data-state="closed" data-vertical="center" data-unmount={String(false)} aria-labelledby={`prueba-modal-title`} tabindex="-1" role="dialog" aria-modal="true" >
+		    <div class="modal-overlay" style={`--overlay-color: rgba(255,0,0,0.5);`}></div>
+		    <div class="modal-wrapper">
+		        <div class="modal-positioner" style={`--offset: 2rem;`}>
+		            <div class="modal-panel">
+		                <div class="px-8 pt-12 pb-8 sm:my-8 sm:w-full sm:max-w-lg rounded-3xl border border-neutral-200/70 bg-white">
+
+
+		<p class="mt-6 text-center text-base text-neutral-800">{t.home.loginModal.social.title}</p>
+					
+        <div class="mt-4 space-y-4">
+
+        	<button class="w-full flex justify-center items-center gap-3 h-12 px-4 rounded-3xl border border-neutral-200/70 bg-neutral-100" aria-label={t.home.loginModal.social.google.ariaLabel}>
+        	    x
+				<span class="text-base font-medium text-neutral-600">{t.home.loginModal.social.google.text}</span>
+        	</button>
+						
+        	<button class="w-full flex justify-center items-center gap-3 h-12 px-4 rounded-3xl border border-neutral-200/70 bg-neutral-100" aria-label={t.home.loginModal.social.x.ariaLabel}>
+        	    x
+				<span class="text-base font-medium text-neutral-600">{t.home.loginModal.social.x.text}</span>
+        	</button>
+
+        </div>
+
+		<p class="mt-6 text-center text-sm text-neutral-800">
+            {t.home.loginModal.terms.text} <a href="/terms" class="underline font-medium">{t.home.loginModal.terms.termsOfUse}</a> • <a href="/privacy" class="underline font-medium">{t.home.loginModal.terms.privacyPolicy}</a>
+        </p>
+	
+		<button type="button" class="absolute top-4 inset-e-7" data-modal-close="login-modal" aria-label={t.home.loginModal.close.ariaLabel}>
+			x
+		</button>
+					
     </div>
-</div>
+
+		            </div>
+		        </div>
+		    </div>
+		</div>
+
 	</body>
 </html>
 
 <script>
-const modal = document.querySelector("#test-modal");
-const panel = modal.querySelector(".test-modal-panel");
+    export const appendChildElement = (element: HTMLElement, parent?: HTMLElement) => (parent ?? document.body).appendChild(element);
+export const removeElement = (element: HTMLElement) => element.remove();
 
-let isOpen = false;
-let transitionVersion = 0;
+export const trapFocus = (element: HTMLElement, event: KeyboardEvent) => {
+    const focusables = Array.from(
+        element.querySelectorAll<HTMLElement>(':is(button, [href], input, select, textarea):not([disabled]):not([aria-hidden="true"])')
+    ).filter((HTMLElement) => HTMLElement.offsetParent !== null);
 
-const openModal = () => {
-    if (isOpen) return;
+    if (focusables.length === 0) return;
 
-    isOpen = true;
-    transitionVersion++;
+    const firstFocusable = focusables[0];
+    const lastFocusable = focusables[focusables.length - 1];
+    const boundary = event.shiftKey ? firstFocusable : lastFocusable;
 
-    modal.style.display = "grid";
+    if (document.activeElement === boundary) {
+        event.preventDefault();
+        (event.shiftKey ? lastFocusable : firstFocusable).focus();
+    }
+};
+   export type ChangeDetail = { isOpen: boolean };
 
-    // Commit the initial styles before starting the transition.
-    void modal.offsetWidth;
-
-    requestAnimationFrame(() => {
-        if (!isOpen) return;
-
-        modal.classList.add("is-open");
-    });
+declare global {
+    interface HTMLElementEventMap {
+        'modal:change': CustomEvent<ChangeDetail>;
+        'sidebar:change': CustomEvent<ChangeDetail>;
+    }
+    interface WindowEventMap {
+        [key: `modal:change:${string}`]: CustomEvent<ChangeDetail>;
+        [key: `sidebar:change:${string}`]: CustomEvent<ChangeDetail>;
+    }
 };
 
-const closeModal = async () => {
-    if (!isOpen) return;
+    const setupModal = (modalElement: HTMLDivElement) => {
+        const { modalId, unmount } = modalElement.dataset;
+        if (!modalId) throw new Error('Missing "data-modal-id" attribute on Modal component');
 
-    isOpen = false;
-    const currentTransition = ++transitionVersion;
+        const overlayElement = modalElement.querySelector<HTMLDivElement>(".modal-overlay");
+        if (!overlayElement) throw new Error(`Modal "${modalId}": component internal element(s) .modal-overlay not found.`);
 
-    modal.classList.remove("is-open");
+        unmount === "true" ? removeElement(modalElement) : appendChildElement(modalElement);
 
-    // Ensure the closing transition is registered.
-    void panel.offsetWidth;
+        const openButtonElement = document.querySelector<HTMLButtonElement>(`[data-modal-open="${modalId}"]`);
+        const closeButtonElement = modalElement.querySelector<HTMLButtonElement>(`[data-modal-close="${modalId}"]`);
+        const focusableElement = modalElement.querySelector<HTMLElement>("[data-modal-autofocus]");
+        let lastFocusedElement: HTMLElement | null = null;
 
-    const animations = modal.getAnimations({ subtree: true });
+        const setAccessibility = (isHidden: boolean) => {
+            modalElement.dataset.state = isHidden ? "closed" : "open";
+            modalElement.setAttribute("aria-hidden", String(isHidden));
+            openButtonElement?.setAttribute("aria-expanded", String(!isHidden));
 
-    await Promise.allSettled(
-        animations.map((animation) => animation.finished)
-    );
+            const detail: ChangeDetail = { isOpen: !isHidden };
+            modalElement.dispatchEvent(new CustomEvent('modal:change', { detail }));
+            window.dispatchEvent(new CustomEvent(`modal:change:${modalId}`, { detail }));
+        };
 
-    // Prevent an old closing transition from hiding a reopened modal.
-    if (transitionVersion !== currentTransition || isOpen) return;
+        const handleKeyboard = (event: KeyboardEvent) => {
+            if (event.key === "Escape") return hideModal();
+            if (event.key === "Tab") trapFocus(modalElement, event);
+        };
 
-    modal.style.display = "none";
-};
+        const showModal = () => {
+            if (modalElement.dataset.state !== "closed") return;
+            // Se guarda antes de abrir, para restaurarlo al cerrar.
+            lastFocusedElement = document.activeElement as HTMLElement;
 
-document.querySelector("#test-modal-open").addEventListener("click", openModal);
-document.querySelector("#test-modal-close").addEventListener("click", closeModal);
+            if (unmount === "true") appendChildElement(modalElement);
+            modalElement.dataset.state = "opening";
+
+            // void modalElement.offsetHeight;
+
+            requestAnimationFrame(() => {
+                setAccessibility(false);
+                modalElement.addEventListener("keydown", handleKeyboard);
+                (focusableElement || modalElement).focus();
+            });
+        };
+
+        const hideModal = () => {
+            if (modalElement.dataset.state !== "open") return;
+
+            modalElement.removeEventListener("keydown", handleKeyboard);
+            // El foco sale antes de marcar aria-hidden="true".
+            lastFocusedElement?.focus();
+            modalElement.dataset.state = "closing";
+
+            // Resuelve al instante si no hay animaciones en curso.
+            Promise.allSettled(modalElement.getAnimations({ subtree: true }).map(({ finished }) => finished)).then(() => {
+                setAccessibility(true);
+                if (unmount === "true") removeElement(modalElement);
+            });
+        };
+
+        overlayElement.addEventListener("click", hideModal);
+        openButtonElement?.addEventListener("click", showModal);
+        closeButtonElement?.addEventListener("click", hideModal);
+        window.addEventListener(`modal:show:${modalId}`, showModal);
+        window.addEventListener(`modal:hide:${modalId}`, hideModal);
+    };
+
+    document.querySelectorAll<HTMLDivElement>(".modal").forEach(setupModal)
 </script>
 
 <style>
 	@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@300..900&family=Righteous&display=swap');
 
-.test-modal {
-    position: fixed;
-    inset: 0;
+.modal {
     display: none;
-    place-items: center;
+    position: relative;
+    z-index: 50;
+}
+
+.modal:not([data-state="closed"]) {
+    display: block;
+}
+
+.modal-overlay {
+    position: fixed;
+    inset: 0px;
+    opacity: 0;
+    background-color: var(--overlay-color);
+    backdrop-filter: blur(1px);
+    transition: opacity var(--transition-duration, 300ms) var(--transition-timing, ease-in-out);
+}
+
+.modal[data-state="open"] > .modal-overlay { opacity: 1; }
+
+/* No captura clics: así llegan al overlay y solo el panel los recibe. */
+.modal-wrapper {
+    position: fixed;
+    inset: 0px;
+    z-index: 50;
+    width: 100vw;
+    overflow-y: auto;
     pointer-events: none;
 }
 
-.test-modal.is-open {
+.modal-positioner {
+    display: flex;
+    justify-content: center;
+    align-items: var(--align-items);
+    padding: var(--offset);
+    min-height: 100%;
+}
+
+.modal[data-vertical="top"] .modal-positioner { --align-items: flex-start; }
+.modal[data-vertical="center"] .modal-positioner { --align-items: center; }
+.modal[data-vertical="bottom"] .modal-positioner { --align-items: flex-end; }
+
+.modal-panel {
     pointer-events: auto;
-}
-
-.test-modal-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgb(0 0 0 / 50%);
     opacity: 0;
-    transition: opacity 600ms ease;
+    transform: translateY(10px) scale(75%);
+    transition: 
+        opacity var(--transition-duration, 300ms) var(--transition-timing, ease-in-out), 
+        transform var(--transition-duration, 300ms) var(--transition-timing, ease-in-out);
 }
 
-.test-modal-panel {
-    position: relative;
-    padding: 40px;
-    background: white;
-    border-radius: 16px;
-    opacity: 0;
-    transform: translateY(10px) scale(0.75);
-    transition:
-        opacity 600ms ease,
-        transform 600ms ease;
-}
-
-.test-modal.is-open .test-modal-overlay {
+.modal[data-state="open"] .modal-panel {
     opacity: 1;
-}
-
-.test-modal.is-open .test-modal-panel {
-    opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0) scale(100%);
 }
 </style>
 
