@@ -21,7 +21,7 @@ interface Props {
 const { id, class: className, overlayColor, offset, verticalPosition = 'center', unmount = false } = Astro.props;
 ---
 
-<div id={id} class:list={["modal", className]} data-modal-id={id} data-state="closed" data-vertical={verticalPosition} data-unmount={String(unmount)} aria-labelledby={`${id}-title`} tabindex="-1" role="dialog" aria-modal="true" aria-hidden="true">
+<div id={id} class:list={["modal", className]} data-modal-id={id} data-state="closed" data-vertical={verticalPosition} data-unmount={String(unmount)} aria-labelledby={`${id}-title`} style="display: none;" tabindex="-1" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="modal-overlay" style={overlayColor && `--overlay-color: ${overlayColor};`}></div>
     <div class="modal-wrapper">
         <div class="modal-positioner" style={offset && `--offset: ${offset};`}>
@@ -34,30 +34,26 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
 
 <style>
 .modal {
-    display: none;
     position: relative;
     z-index: 50;
 }
 
-.modal:not([data-state="closed"]) {
-    display: block;
-}
-
 .modal-overlay {
     position: fixed;
-    inset: 0px;
+    inset: 0;
     opacity: 0;
     background-color: var(--overlay-color);
     backdrop-filter: blur(1px);
     transition: opacity var(--transition-duration, 300ms) var(--transition-timing, ease-in-out);
 }
 
-.modal[data-state="open"] > .modal-overlay { opacity: 1; }
+.modal[data-state="open"] > .modal-overlay {
+    opacity: 1;
+}
 
-/* No captura clics: así llegan al overlay y solo el panel los recibe. */
 .modal-wrapper {
     position: fixed;
-    inset: 0px;
+    inset: 0;
     z-index: 50;
     width: 100vw;
     overflow-y: auto;
@@ -72,16 +68,24 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
     min-height: 100%;
 }
 
-.modal[data-vertical="top"] .modal-positioner { --align-items: flex-start; }
-.modal[data-vertical="center"] .modal-positioner { --align-items: center; }
-.modal[data-vertical="bottom"] .modal-positioner { --align-items: flex-end; }
+.modal[data-vertical="top"] .modal-positioner {
+    --align-items: flex-start;
+}
+
+.modal[data-vertical="center"] .modal-positioner {
+    --align-items: center;
+}
+
+.modal[data-vertical="bottom"] .modal-positioner {
+    --align-items: flex-end;
+}
 
 .modal-panel {
     pointer-events: auto;
     opacity: 0;
     transform: translateY(10px) scale(75%);
-    transition: 
-        opacity var(--transition-duration, 300ms) var(--transition-timing, ease-in-out), 
+    transition:
+        opacity var(--transition-duration, 300ms) var(--transition-timing, ease-in-out),
         transform var(--transition-duration, 300ms) var(--transition-timing, ease-in-out);
 }
 
@@ -125,40 +129,53 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
         };
 
         const showModal = () => {
-            if (modalElement.dataset.state !== "closed") return;
-            // Se guarda antes de abrir, para restaurarlo al cerrar.
-            lastFocusedElement = document.activeElement as HTMLElement;
+    if (modalElement.dataset.state !== "closed") return;
 
-             if (unmount === "true") appendChildElement(modalElement);
+    lastFocusedElement = document.activeElement as HTMLElement;
 
-    modalElement.dataset.state = "opening";
+    if (unmount === "true") {
+        appendChildElement(modalElement);
+    }
 
-    // Force the browser to calculate the initial layout.
+    modalElement.style.display = "block";
+
+    // Commit the initial styles before starting the transition.
     void modalElement.offsetWidth;
 
     requestAnimationFrame(() => {
-        if (modalElement.dataset.state !== "opening") return;
+        if (modalElement.dataset.state !== "closed") return;
 
         setAccessibility(false);
         modalElement.addEventListener("keydown", handleKeyboard);
         (focusableElement || modalElement).focus();
     });
-        };
+};
 
-        const hideModal = () => {
-            if (modalElement.dataset.state !== "open") return;
+const hideModal = async () => {
+    if (modalElement.dataset.state !== "open") return;
 
-            modalElement.removeEventListener("keydown", handleKeyboard);
-            // El foco sale antes de marcar aria-hidden="true".
-            lastFocusedElement?.focus();
-            modalElement.dataset.state = "closing";
+    modalElement.removeEventListener("keydown", handleKeyboard);
 
-            // Resuelve al instante si no hay animaciones en curso.
-            Promise.allSettled(modalElement.getAnimations({ subtree: true }).map(({ finished }) => finished)).then(() => {
-                setAccessibility(true);
-                if (unmount === "true") removeElement(modalElement);
-            });
-        };
+    lastFocusedElement?.focus();
+
+    modalElement.dataset.state = "closing";
+
+    const animations = modalElement.getAnimations({ subtree: true });
+
+    await Promise.allSettled(
+        animations.map((animation) => animation.finished)
+    );
+
+    if (modalElement.dataset.state !== "closing") return;
+
+    setAccessibility(true);
+
+    if (unmount === "true") {
+        removeElement(modalElement);
+    } else {
+        modalElement.style.display = "none";
+    }
+};
 
         overlayElement.addEventListener("click", hideModal);
         openButtonElement?.addEventListener("click", showModal);
