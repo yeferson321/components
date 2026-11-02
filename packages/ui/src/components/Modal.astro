@@ -45,16 +45,16 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
     display: block;
 }
 
-.modal-overlay {
+/* .modal-overlay {
     position: fixed;
     inset: 0px;
     opacity: 0;
     background-color: var(--overlay-color);
-    /* backdrop-filter: blur(1px); */
+    backdrop-filter: blur(1px);
     transition: opacity var(--transition-duration, 300ms) var(--transition-timing, ease-in-out);
 }
 
-.modal[data-state="open"] > .modal-overlay { opacity: 1; }
+.modal[data-state="open"] > .modal-overlay { opacity: 1; } */
 
 /* No captura clics: así llegan al overlay y solo el panel los recibe. */
 .modal-wrapper {
@@ -85,9 +85,6 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
     transition: 
         opacity var(--transition-duration, 300ms) var(--transition-timing, ease-in-out), 
         transform var(--transition-duration, 300ms) var(--transition-timing, ease-in-out);
-}
-.modal[data-state="opening"] .modal-panel {
-    opacity: 0.001;
 }
 
 .modal[data-state="open"] .modal-panel {
