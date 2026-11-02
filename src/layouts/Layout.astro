@@ -42,14 +42,41 @@ const { locale, translations: t } = Astro.props;
 
 <script>
 	const modal = document.querySelector("#test-modal");
+const openButton = document.querySelector("#test-modal-open");
+const closeButton = document.querySelector("#test-modal-close");
 
-document.querySelector("#test-modal-open").addEventListener("click", () => {
+const panel = modal.querySelector(".test-modal-panel");
+
+const openModal = () => {
     modal.classList.add("is-open");
+};
+
+const closeModal = () => {
+    modal.classList.remove("is-open");
+};
+
+panel.addEventListener("transitionend", (event) => {
+    if (
+        event.target !== panel ||
+        event.propertyName !== "transform"
+    ) {
+        return;
+    }
+
+    if (!modal.classList.contains("is-open")) {
+        modal.style.visibility = "hidden";
+    }
 });
 
-document.querySelector("#test-modal-close").addEventListener("click", () => {
-    modal.classList.remove("is-open");
+openButton.addEventListener("click", () => {
+    modal.style.visibility = "visible";
+
+    requestAnimationFrame(() => {
+        modal.classList.add("is-open");
+    });
 });
+
+closeButton.addEventListener("click", closeModal);
 </script>
 
 <style>
@@ -61,10 +88,13 @@ document.querySelector("#test-modal-close").addEventListener("click", () => {
     display: grid;
     place-items: center;
     visibility: hidden;
+    pointer-events: none;
 }
+
 
 .test-modal.is-open {
     visibility: visible;
+    pointer-events: auto;
 }
 
 .test-modal-overlay {
