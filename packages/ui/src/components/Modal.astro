@@ -132,12 +132,13 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
             // lastFocusedElement = document.activeElement as HTMLElement;
 
             if (unmount === "true") appendChildElement(modalElement);
+
             modalElement.dataset.state = "opening";
 
             requestAnimationFrame(() => requestAnimationFrame(() => {
     setAccessibility(false);
     modalElement.addEventListener("keydown", handleKeyboard);
-    (focusableElement || modalElement).focus();
+    // (focusableElement || modalElement).focus();
 }));
         };
 
