@@ -33,14 +33,10 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
 </div>
 
 <style>
-
-    
 .modal {
     display: none;
     position: relative;
     z-index: 50;
-        --transition-duration: 300ms;
-    --transition-timing: ease-in-out;
 }
 
 .modal:not([data-state="closed"]) {
@@ -131,22 +127,22 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
         const showModal = () => {
             if (modalElement.dataset.state !== "closed") return;
             // Se guarda antes de abrir, para restaurarlo al cerrar.
-            // lastFocusedElement = document.activeElement as HTMLElement;
+            lastFocusedElement = document.activeElement as HTMLElement;
 
             if (unmount === "true") appendChildElement(modalElement);
             modalElement.dataset.state = "opening";
 
             requestAnimationFrame(() => {
-    setAccessibility(false);
-
-    const panelElement = modalElement.querySelector<HTMLElement>('.modal-panel')!;
-    console.log('duration:', getComputedStyle(panelElement).transitionDuration);
-    console.log('transitions:', modalElement.getAnimations({ subtree: true }).map((a) => (a as CSSTransition).transitionProperty));
-
-    modalElement.addEventListener("keydown", handleKeyboard);
-    (focusableElement || modalElement).focus();
-});
+                requestAnimationFrame(() => {
+                    setAccessibility(false);
+                    modalElement.addEventListener("keydown", handleKeyboard);
+                    (focusableElement || modalElement).focus();
+                });
+            });
         };
+
+        new MutationObserver(() => console.log(modalElement.dataset.state))
+    .observe(modalElement, { attributes: true, attributeFilter: ['data-state'] });
 
         const hideModal = () => {
             if (modalElement.dataset.state !== "open") return;
