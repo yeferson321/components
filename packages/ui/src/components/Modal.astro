@@ -37,15 +37,13 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
     display: none;
     position: relative;
     z-index: 50;
-    --transition-duration: 300ms;
-    --transition-timing: ease-in-out;
 }
 
 .modal:not([data-state="closed"]) {
     display: block;
 }
 
-/* .modal-overlay {
+.modal-overlay {
     position: fixed;
     inset: 0px;
     opacity: 0;
@@ -54,7 +52,7 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
     transition: opacity var(--transition-duration, 300ms) var(--transition-timing, ease-in-out);
 }
 
-.modal[data-state="open"] > .modal-overlay { opacity: 1; } */
+.modal[data-state="open"] > .modal-overlay { opacity: 1; }
 
 /* No captura clics: así llegan al overlay y solo el panel los recibe. */
 .modal-wrapper {
@@ -116,9 +114,9 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
             modalElement.setAttribute("aria-hidden", String(isHidden));
             openButtonElement?.setAttribute("aria-expanded", String(!isHidden));
 
-            // const detail: ChangeDetail = { isOpen: !isHidden };
-            // modalElement.dispatchEvent(new CustomEvent('modal:change', { detail }));
-            // window.dispatchEvent(new CustomEvent(`modal:change:${modalId}`, { detail }));
+            const detail: ChangeDetail = { isOpen: !isHidden };
+            modalElement.dispatchEvent(new CustomEvent('modal:change', { detail }));
+            window.dispatchEvent(new CustomEvent(`modal:change:${modalId}`, { detail }));
         };
 
         const handleKeyboard = (event: KeyboardEvent) => {
@@ -129,32 +127,24 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
         const showModal = () => {
             if (modalElement.dataset.state !== "closed") return;
             // Se guarda antes de abrir, para restaurarlo al cerrar.
-            // lastFocusedElement = document.activeElement as HTMLElement;
+            lastFocusedElement = document.activeElement as HTMLElement;
 
             if (unmount === "true") appendChildElement(modalElement);
-
             modalElement.dataset.state = "opening";
 
-            setTimeout(() => {
-                 setAccessibility(false);
-    modalElement.addEventListener("keydown", handleKeyboard);
-            }, 350);
-//             requestAnimationFrame(() => requestAnimationFrame(() => {
-//     setAccessibility(false);
-//     modalElement.addEventListener("keydown", handleKeyboard);
-//     (focusableElement || modalElement).focus();
-// }));
+            requestAnimationFrame(() => {
+                setAccessibility(false);
+                modalElement.addEventListener("keydown", handleKeyboard);
+                (focusableElement || modalElement).focus();
+            });
         };
-
-        new MutationObserver(() => console.log(modalElement.dataset.state))
-    .observe(modalElement, { attributes: true, attributeFilter: ['data-state'] });
 
         const hideModal = () => {
             if (modalElement.dataset.state !== "open") return;
 
             modalElement.removeEventListener("keydown", handleKeyboard);
             // El foco sale antes de marcar aria-hidden="true".
-            // lastFocusedElement?.focus();
+            lastFocusedElement?.focus();
             modalElement.dataset.state = "closing";
 
             // Resuelve al instante si no hay animaciones en curso.
