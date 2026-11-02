@@ -79,36 +79,21 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
 .modal-panel {
     pointer-events: auto;
     opacity: 0;
-    transform: translateY(10px) scale(0.75);
-    transition:
-        opacity var(--transition-duration, 300ms) var(--transition-timing, ease-in-out),
+    transform: translateY(70px);
+    transition: 
+        opacity var(--transition-duration, 300ms) var(--transition-timing, ease-in-out), 
         transform var(--transition-duration, 300ms) var(--transition-timing, ease-in-out);
 }
 
 .modal[data-state="open"] .modal-panel {
     opacity: 1;
-    transform: translateY(0) scale(1);
-}
-
-@starting-style {
-    .modal[data-state="open"] .modal-panel {
-        opacity: 0;
-        transform: translateY(10px) scale(0.75);
-    }
+    transform: translateY(0);
 }
 </style>
 
 <script>
     import { appendChildElement, removeElement, trapFocus } from '#/utils/overlay';
     import type { ChangeDetail } from '#/components/types.ts';
-
-    const nextFrame = (callback: FrameRequestCallback) => {
-    if (typeof requestAnimationFrame === "function") {
-        requestAnimationFrame(callback);
-    } else {
-        setTimeout(callback, 16);
-    }
-};
 
     const setupModal = (modalElement: HTMLDivElement) => {
         const { modalId, unmount } = modalElement.dataset;
@@ -117,7 +102,7 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
         const overlayElement = modalElement.querySelector<HTMLDivElement>(".modal-overlay");
         if (!overlayElement) throw new Error(`Modal "${modalId}": component internal element(s) .modal-overlay not found.`);
 
-        // unmount === "true" ? removeElement(modalElement) : appendChildElement(modalElement);
+        unmount === "true" ? removeElement(modalElement) : appendChildElement(modalElement);
 
         const openButtonElement = document.querySelector<HTMLButtonElement>(`[data-modal-open="${modalId}"]`);
         const closeButtonElement = modalElement.querySelector<HTMLButtonElement>(`[data-modal-close="${modalId}"]`);
@@ -144,24 +129,14 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
             // Se guarda antes de abrir, para restaurarlo al cerrar.
             lastFocusedElement = document.activeElement as HTMLElement;
 
-            // if (unmount === "true") appendChildElement(modalElement);
+            if (unmount === "true") appendChildElement(modalElement);
             modalElement.dataset.state = "opening";
 
-            
-  const panelElement = modalElement.querySelector<HTMLElement>(".modal-panel");
-
-if (!panelElement) {
-    throw new Error(`Modal "${modalId}": .modal-panel not found.`);
-}
-
-// Force the browser to calculate the initial styles.
-getComputedStyle(panelElement).transform;
-
-requestAnimationFrame(() => {
-    setAccessibility(false);
-    modalElement.addEventListener("keydown", handleKeyboard);
-    (focusableElement || modalElement).focus();
-});
+            requestAnimationFrame(() => {
+                setAccessibility(false);
+                modalElement.addEventListener("keydown", handleKeyboard);
+                (focusableElement || modalElement).focus();
+            });
         };
 
         const hideModal = () => {
@@ -175,7 +150,7 @@ requestAnimationFrame(() => {
             // Resuelve al instante si no hay animaciones en curso.
             Promise.allSettled(modalElement.getAnimations({ subtree: true }).map(({ finished }) => finished)).then(() => {
                 setAccessibility(true);
-                // if (unmount === "true") removeElement(modalElement);
+                if (unmount === "true") removeElement(modalElement);
             });
         };
 
