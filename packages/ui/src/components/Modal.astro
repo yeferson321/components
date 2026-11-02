@@ -41,14 +41,6 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
     --transition-timing: ease-in-out;
 }
 
-.modal:not([data-state="closed"]) .modal-panel {
-    will-change: opacity, transform;
-}
-
-.modal:not([data-state="closed"]) > .modal-overlay {
-    will-change: opacity;
-}
-
 .modal:not([data-state="closed"]) {
     display: block;
 }
@@ -93,6 +85,9 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
     transition: 
         opacity var(--transition-duration, 300ms) var(--transition-timing, ease-in-out), 
         transform var(--transition-duration, 300ms) var(--transition-timing, ease-in-out);
+}
+.modal[data-state="opening"] .modal-panel {
+    opacity: 0.001;
 }
 
 .modal[data-state="open"] .modal-panel {
@@ -142,13 +137,11 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
             if (unmount === "true") appendChildElement(modalElement);
             modalElement.dataset.state = "opening";
 
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    setAccessibility(false);
-                    modalElement.addEventListener("keydown", handleKeyboard);
-                    (focusableElement || modalElement).focus();
-                });
-            });
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+    setAccessibility(false);
+    modalElement.addEventListener("keydown", handleKeyboard);
+    (focusableElement || modalElement).focus();
+}));
         };
 
         new MutationObserver(() => console.log(modalElement.dataset.state))
