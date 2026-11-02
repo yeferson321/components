@@ -34,30 +34,31 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
 
 <style>
 .modal {
-    display: none;
+    visibility: hidden;
     position: relative;
     z-index: 50;
 }
 
-.modal:not([data-state="closed"]) {
-    display: block;
+.modal[data-state="open"] {
+    visibility: visible;
 }
 
 .modal-overlay {
     position: fixed;
-    inset: 0px;
+    inset: 0;
     opacity: 0;
     background-color: var(--overlay-color);
     backdrop-filter: blur(1px);
     transition: opacity var(--transition-duration, 300ms) var(--transition-timing, ease-in-out);
 }
 
-.modal[data-state="open"] > .modal-overlay { opacity: 1; }
+.modal[data-state="open"] > .modal-overlay {
+    opacity: 1;
+}
 
-/* No captura clics: así llegan al overlay y solo el panel los recibe. */
 .modal-wrapper {
     position: fixed;
-    inset: 0px;
+    inset: 0;
     z-index: 50;
     width: 100vw;
     overflow-y: auto;
@@ -79,15 +80,15 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
 .modal-panel {
     pointer-events: auto;
     opacity: 0;
-    transform: translateY(70px);
-    transition: 
-        opacity var(--transition-duration, 300ms) var(--transition-timing, ease-in-out), 
+    transform: translateY(10px) scale(0.75);
+    transition:
+        opacity var(--transition-duration, 300ms) var(--transition-timing, ease-in-out),
         transform var(--transition-duration, 300ms) var(--transition-timing, ease-in-out);
 }
 
 .modal[data-state="open"] .modal-panel {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
 }
 </style>
 
@@ -127,16 +128,15 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
         const showModal = () => {
             if (modalElement.dataset.state !== "closed") return;
             // Se guarda antes de abrir, para restaurarlo al cerrar.
-            lastFocusedElement = document.activeElement as HTMLElement;
+                lastFocusedElement = document.activeElement as HTMLElement;
 
-            if (unmount === "true") appendChildElement(modalElement);
-            modalElement.dataset.state = "opening";
+    if (unmount === "true") appendChildElement(modalElement);
 
-            requestAnimationFrame(() => {
-                setAccessibility(false);
-                modalElement.addEventListener("keydown", handleKeyboard);
-                (focusableElement || modalElement).focus();
-            });
+    requestAnimationFrame(() => {
+        setAccessibility(false);
+        modalElement.addEventListener("keydown", handleKeyboard);
+        (focusableElement || modalElement).focus();
+    });
         };
 
         const hideModal = () => {
