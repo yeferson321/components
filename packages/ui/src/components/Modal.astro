@@ -135,11 +135,15 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
 
             modalElement.dataset.state = "opening";
 
-            requestAnimationFrame(() => requestAnimationFrame(() => {
-    setAccessibility(false);
+            setTimeout(() => {
+                 setAccessibility(false);
     modalElement.addEventListener("keydown", handleKeyboard);
-    // (focusableElement || modalElement).focus();
-}));
+            }, 350);
+//             requestAnimationFrame(() => requestAnimationFrame(() => {
+//     setAccessibility(false);
+//     modalElement.addEventListener("keydown", handleKeyboard);
+//     (focusableElement || modalElement).focus();
+// }));
         };
 
         new MutationObserver(() => console.log(modalElement.dataset.state))
