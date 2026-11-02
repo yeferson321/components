@@ -15,7 +15,7 @@ body {
 /* @media (prefers-reduced-motion: reduce) { * { transition: none !important } } */
 
 :root {
-    --transition-duration: 2000ms;
+    --transition-duration: 300ms;
     --transition-timing: ease-in-out;
 }
 

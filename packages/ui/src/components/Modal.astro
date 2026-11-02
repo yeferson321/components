@@ -114,9 +114,9 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
             modalElement.setAttribute("aria-hidden", String(isHidden));
             openButtonElement?.setAttribute("aria-expanded", String(!isHidden));
 
-            const detail: ChangeDetail = { isOpen: !isHidden };
-            modalElement.dispatchEvent(new CustomEvent('modal:change', { detail }));
-            window.dispatchEvent(new CustomEvent(`modal:change:${modalId}`, { detail }));
+            // const detail: ChangeDetail = { isOpen: !isHidden };
+            // modalElement.dispatchEvent(new CustomEvent('modal:change', { detail }));
+            // window.dispatchEvent(new CustomEvent(`modal:change:${modalId}`, { detail }));
         };
 
         const handleKeyboard = (event: KeyboardEvent) => {
@@ -127,7 +127,7 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
         const showModal = () => {
             if (modalElement.dataset.state !== "closed") return;
             // Se guarda antes de abrir, para restaurarlo al cerrar.
-            lastFocusedElement = document.activeElement as HTMLElement;
+            // lastFocusedElement = document.activeElement as HTMLElement;
 
             if (unmount === "true") appendChildElement(modalElement);
             modalElement.dataset.state = "opening";
