@@ -117,14 +117,6 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
             const detail: ChangeDetail = { isOpen: !isHidden };
             modalElement.dispatchEvent(new CustomEvent('modal:change', { detail }));
             window.dispatchEvent(new CustomEvent(`modal:change:${modalId}`, { detail }));
-
-                    if (unmount !== "true") {
-            modalElement.style.visibility = "hidden";
-            modalElement.dataset.state = "opening";
-            void modalElement.offsetHeight;
-            modalElement.dataset.state = "closed";
-            modalElement.style.visibility = "";
-        }
         };
 
         const handleKeyboard = (event: KeyboardEvent) => {
@@ -172,6 +164,14 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
         closeButtonElement?.addEventListener("click", hideModal);
         window.addEventListener(`modal:show:${modalId}`, showModal);
         window.addEventListener(`modal:hide:${modalId}`, hideModal);
+
+        if (unmount !== "true") {
+            modalElement.style.visibility = "hidden";
+            modalElement.dataset.state = "opening";
+            void modalElement.offsetHeight;
+            modalElement.dataset.state = "closed";
+            modalElement.style.visibility = "";
+        }
     };
 
     document.querySelectorAll<HTMLDivElement>(".modal").forEach(setupModal);
