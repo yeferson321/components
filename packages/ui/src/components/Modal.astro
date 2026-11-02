@@ -131,7 +131,7 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
         const showModal = () => {
             if (modalElement.dataset.state !== "closed") return;
             // Se guarda antes de abrir, para restaurarlo al cerrar.
-            lastFocusedElement = document.activeElement as HTMLElement;
+            // lastFocusedElement = document.activeElement as HTMLElement;
 
             if (unmount === "true") appendChildElement(modalElement);
             modalElement.dataset.state = "opening";
