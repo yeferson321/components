@@ -33,10 +33,14 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
 </div>
 
 <style>
+
+    
 .modal {
     display: none;
     position: relative;
     z-index: 50;
+        --transition-duration: 300ms;
+    --transition-timing: ease-in-out;
 }
 
 .modal:not([data-state="closed"]) {
@@ -133,16 +137,16 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
             modalElement.dataset.state = "opening";
 
             requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    setAccessibility(false);
-                    modalElement.addEventListener("keydown", handleKeyboard);
-                    (focusableElement || modalElement).focus();
-                });
-            });
-        };
+    setAccessibility(false);
 
-        new MutationObserver(() => console.log(modalElement.dataset.state))
-    .observe(modalElement, { attributes: true, attributeFilter: ['data-state'] });
+    const panelElement = modalElement.querySelector<HTMLElement>('.modal-panel')!;
+    console.log('duration:', getComputedStyle(panelElement).transitionDuration);
+    console.log('transitions:', modalElement.getAnimations({ subtree: true }).map((a) => (a as CSSTransition).transitionProperty));
+
+    modalElement.addEventListener("keydown", handleKeyboard);
+    (focusableElement || modalElement).focus();
+});
+        };
 
         const hideModal = () => {
             if (modalElement.dataset.state !== "open") return;
