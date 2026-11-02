@@ -132,18 +132,13 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
             if (unmount === "true") appendChildElement(modalElement);
             modalElement.dataset.state = "opening";
 
-            setTimeout(() => {
-                 setAccessibility(false);
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    setAccessibility(false);
                     modalElement.addEventListener("keydown", handleKeyboard);
                     (focusableElement || modalElement).focus();
-            }, 350);
-            // requestAnimationFrame(() => {
-            //     requestAnimationFrame(() => {
-            //         setAccessibility(false);
-            //         modalElement.addEventListener("keydown", handleKeyboard);
-            //         (focusableElement || modalElement).focus();
-            //     });
-            // });
+                });
+            });
         };
 
         new MutationObserver(() => console.log(modalElement.dataset.state))
