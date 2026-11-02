@@ -1,118 +1,94 @@
-
 ---
 /*
- * Accessible modal.
- * - Open: button with `data-modal-open="<id>"` or `modal:show:<id>` event.
- * - Close: `data-modal-close="<id>"`, overlay click, Escape or `modal:hide:<id>` event.
- * - Initial focus: element with `data-modal-autofocus`, otherwise the modal itself.
- * - Requires an element with id `<id>-title` for `aria-labelledby`.
+ * Modal accesible.
+ * - Abrir: botón con `data-modal-open="<id>"` o evento `modal:show:<id>`.
+ * - Cerrar: `data-modal-close` dentro del modal, clic en el overlay, Escape o evento `modal:hide:<id>`.
+ * - Foco inicial: elemento con `data-modal-autofocus` (si no hay, el propio modal).
+ * - Requiere un elemento con id `<id>-title` (lo usa `aria-labelledby`).
  */
 
 interface Props {
     id: string;
     class?: string;
     overlayColor?: string;
-    /** Space between the panel and the viewport edge. */
+    /** Espacio entre el panel y el borde de la pantalla (se aplica como `padding`). */
     offset?: string;
     verticalPosition?: 'top' | 'center' | 'bottom';
-    /** Removes the modal from the DOM while closed. @default false */
+    /** Quita el modal del DOM mientras está cerrado. @default false */
     unmount?: boolean;
 };
 
-const {
-    id,
-    class: className,
-    overlayColor,
-    offset,
-    verticalPosition = 'center',
-    unmount = false
-} = Astro.props;
+const { id, class: className, overlayColor, offset, verticalPosition = 'center', unmount = false } = Astro.props;
 ---
 
-<div
-    id={id}
-    class:list={["modal", className]}
-    style="display: none;"
-    data-modal-id={id}
-    data-state="closed"
-    data-vertical={verticalPosition}
-    data-unmount={String(unmount)}
-    aria-labelledby={`${id}-title`}
-    tabindex="-1"
-    role="dialog"
-    aria-modal="true"
-    aria-hidden="true"
->
-    <div
-        class="modal-overlay"
-        style={overlayColor && `--overlay-color: ${overlayColor};`}
-    ></div>
-
+<div id={id} class:list={["modal", className]} data-modal-id={id} data-state="closed" data-vertical={verticalPosition} data-unmount={String(unmount)} aria-labelledby={`${id}-title`} tabindex="-1" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-overlay" style={overlayColor && `--overlay-color: ${overlayColor};`}></div>
     <div class="modal-wrapper">
         <div class="modal-positioner" style={offset && `--offset: ${offset};`}>
             <div class="modal-panel">
-                <slot />
+                <slot/>
             </div>
         </div>
     </div>
 </div>
 
 <style>
-    .modal {
-        position: relative;
-        z-index: 50;
-    }
+.modal {
+    display: none;
+    position: relative;
+    z-index: 50;
+}
 
-    .modal-overlay {
-        position: fixed;
-        inset: 0;
-        opacity: 0;
-        background-color: var(--overlay-color);
-        backdrop-filter: blur(1px);
-        transition:
-            opacity var(--transition-duration, 300ms)
-            var(--transition-timing, ease-in-out);
-    }
+.modal:not([data-state="closed"]) {
+    display: block;
+}
 
-    .modal-wrapper {
-        position: fixed;
-        inset: 0;
-        z-index: 50;
-        width: 100vw;
-        overflow-y: auto;
-        pointer-events: none;
-    }
+.modal-overlay {
+    position: fixed;
+    inset: 0px;
+    opacity: 0;
+    background-color: var(--overlay-color);
+    backdrop-filter: blur(1px);
+    transition: opacity var(--transition-duration, 300ms) var(--transition-timing, ease-in-out);
+}
 
-    .modal-positioner {
-        display: flex;
-        justify-content: center;
-        align-items: var(--align-items);
-        padding: var(--offset);
-        min-height: 100%;
-    }
+.modal[data-state="open"] > .modal-overlay { opacity: 1; }
 
-    .modal[data-vertical="top"] .modal-positioner {
-        --align-items: flex-start;
-    }
+/* No captura clics: así llegan al overlay y solo el panel los recibe. */
+.modal-wrapper {
+    position: fixed;
+    inset: 0px;
+    z-index: 50;
+    width: 100vw;
+    overflow-y: auto;
+    pointer-events: none;
+}
 
-    .modal[data-vertical="center"] .modal-positioner {
-        --align-items: center;
-    }
+.modal-positioner {
+    display: flex;
+    justify-content: center;
+    align-items: var(--align-items);
+    padding: var(--offset);
+    min-height: 100%;
+}
 
-    .modal[data-vertical="bottom"] .modal-positioner {
-        --align-items: flex-end;
-    }
+.modal[data-vertical="top"] .modal-positioner { --align-items: flex-start; }
+.modal[data-vertical="center"] .modal-positioner { --align-items: center; }
+.modal[data-vertical="bottom"] .modal-positioner { --align-items: flex-end; }
 
-    .modal-panel {
-        pointer-events: auto;
-        opacity: 0;
-        transform: translateY(10px) scale(0.75);
-        transition:
-            opacity var(--transition-duration, 300ms)
-            var(--transition-timing, ease-in-out),
-            transform var(--transition-duration, 300ms)
-            var(--transition-timing, ease-in-out);
-    }
+.modal-panel {
+    pointer-events: auto;
+    opacity: 0;
+    transform: translateY(10px) scale(75%);
+    transition: 
+        opacity var(--transition-duration, 300ms) var(--transition-timing, ease-in-out), 
+        transform var(--transition-duration, 300ms) var(--transition-timing, ease-in-out);
+}
+
+.modal[data-state="open"] .modal-panel {
+    opacity: 1;
+    transform: translateY(0) scale(100%);
+}
 </style>
 
 <script>
@@ -121,58 +97,26 @@ const {
 
     const setupModal = (modalElement: HTMLDivElement) => {
         const { modalId, unmount } = modalElement.dataset;
-
-        if (!modalId) {
-            throw new Error('Missing "data-modal-id" attribute on Modal component');
-        }
+        if (!modalId) throw new Error('Missing "data-modal-id" attribute on Modal component');
 
         const overlayElement = modalElement.querySelector<HTMLDivElement>(".modal-overlay");
-        const panelElement = modalElement.querySelector<HTMLDivElement>(".modal-panel");
+        if (!overlayElement) throw new Error(`Modal "${modalId}": component internal element(s) .modal-overlay not found.`);
 
-        if (!overlayElement || !panelElement) {
-            throw new Error(`Modal "${modalId}": internal elements not found.`);
-        }
+        unmount === "true" ? removeElement(modalElement) : appendChildElement(modalElement);
 
-        const isUnmounted = unmount === "true";
-
-        // Initialize the modal as hidden.
-        modalElement.style.display = "none";
-
-        if (isUnmounted) {
-            removeElement(modalElement);
-        } else {
-            appendChildElement(modalElement);
-        }
-
-        const openButtonElement = document.querySelector<HTMLButtonElement>(
-            `[data-modal-open="${modalId}"]`
-        );
-
-        const closeButtonElement = modalElement.querySelector<HTMLButtonElement>(
-            `[data-modal-close="${modalId}"]`
-        );
-
-        const focusableElement = modalElement.querySelector<HTMLElement>(
-            "[data-modal-autofocus]"
-        );
-
+        const openButtonElement = document.querySelector<HTMLButtonElement>(`[data-modal-open="${modalId}"]`);
+        const closeButtonElement = modalElement.querySelector<HTMLButtonElement>(`[data-modal-close="${modalId}"]`);
+        const focusableElement = modalElement.querySelector<HTMLElement>("[data-modal-autofocus]");
         let lastFocusedElement: HTMLElement | null = null;
 
         const setAccessibility = (isHidden: boolean) => {
             modalElement.dataset.state = isHidden ? "closed" : "open";
             modalElement.setAttribute("aria-hidden", String(isHidden));
-
             openButtonElement?.setAttribute("aria-expanded", String(!isHidden));
 
             const detail: ChangeDetail = { isOpen: !isHidden };
-
-            modalElement.dispatchEvent(
-                new CustomEvent('modal:change', { detail })
-            );
-
-            window.dispatchEvent(
-                new CustomEvent(`modal:change:${modalId}`, { detail })
-            );
+            modalElement.dispatchEvent(new CustomEvent('modal:change', { detail }));
+            window.dispatchEvent(new CustomEvent(`modal:change:${modalId}`, { detail }));
         };
 
         const handleKeyboard = (event: KeyboardEvent) => {
@@ -182,36 +126,15 @@ const {
 
         const showModal = () => {
             if (modalElement.dataset.state !== "closed") return;
-
+            // Se guarda antes de abrir, para restaurarlo al cerrar.
             lastFocusedElement = document.activeElement as HTMLElement;
 
-            if (isUnmounted) {
-                appendChildElement(modalElement);
-            }
-
-            // Make the modal visible to the rendering engine.
-            modalElement.style.display = "block";
-
-            // Reset the initial animation values.
-            overlayElement.style.opacity = "0";
-            panelElement.style.opacity = "0";
-            panelElement.style.transform = "translateY(10px) scale(0.75)";
-
+            if (unmount === "true") appendChildElement(modalElement);
             modalElement.dataset.state = "opening";
 
-            // Force the browser to calculate the initial styles.
-            void modalElement.offsetWidth;
-
             requestAnimationFrame(() => {
-                // Apply the final animation values.
-                overlayElement.style.opacity = "1";
-                panelElement.style.opacity = "1";
-                panelElement.style.transform = "translateY(0) scale(1)";
-
                 setAccessibility(false);
-
                 modalElement.addEventListener("keydown", handleKeyboard);
-
                 (focusableElement || modalElement).focus();
             });
         };
@@ -220,41 +143,20 @@ const {
             if (modalElement.dataset.state !== "open") return;
 
             modalElement.removeEventListener("keydown", handleKeyboard);
-
+            // El foco sale antes de marcar aria-hidden="true".
             lastFocusedElement?.focus();
-
             modalElement.dataset.state = "closing";
 
-            // Restore the initial animation values.
-            overlayElement.style.opacity = "0";
-            panelElement.style.opacity = "0";
-            panelElement.style.transform = "translateY(10px) scale(0.75)";
-
-            // Force the browser to calculate the closing transitions.
-            void modalElement.offsetWidth;
-
-            const animations = [
-                ...overlayElement.getAnimations(),
-                ...panelElement.getAnimations()
-            ];
-
-            Promise.allSettled(
-                animations.map(({ finished }) => finished)
-            ).then(() => {
-                modalElement.style.display = "none";
-
+            // Resuelve al instante si no hay animaciones en curso.
+            Promise.allSettled(modalElement.getAnimations({ subtree: true }).map(({ finished }) => finished)).then(() => {
                 setAccessibility(true);
-
-                if (isUnmounted) {
-                    removeElement(modalElement);
-                }
+                if (unmount === "true") removeElement(modalElement);
             });
         };
 
         overlayElement.addEventListener("click", hideModal);
         openButtonElement?.addEventListener("click", showModal);
         closeButtonElement?.addEventListener("click", hideModal);
-
         window.addEventListener(`modal:show:${modalId}`, showModal);
         window.addEventListener(`modal:hide:${modalId}`, hideModal);
     };

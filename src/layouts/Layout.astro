@@ -25,10 +25,75 @@ const { locale, translations: t } = Astro.props;
 	</head>
 	<body>
 		<slot />
+
+
+		<button id="test-modal-open">Open modal</button>
+
+<div id="test-modal" class="test-modal">
+    <div class="test-modal-overlay"></div>
+
+    <div class="test-modal-panel">
+        <h2>Test modal werfiojweorjfojweorjfoi</h2>
+        <button id="test-modal-close">Close</button>
+    </div>
+</div>
 	</body>
 </html>
 
+<script>
+	const modal = document.querySelector("#test-modal");
+
+document.querySelector("#test-modal-open").addEventListener("click", () => {
+    modal.classList.add("is-open");
+});
+
+document.querySelector("#test-modal-close").addEventListener("click", () => {
+    modal.classList.remove("is-open");
+});
+</script>
+
 <style>
 	@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@300..900&family=Righteous&display=swap');
+
+	.test-modal {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    visibility: hidden;
+}
+
+.test-modal.is-open {
+    visibility: visible;
+}
+
+.test-modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgb(0 0 0 / 50%);
+    opacity: 0;
+    transition: opacity 300ms ease;
+}
+
+.test-modal-panel {
+    position: relative;
+    padding: 40px;
+    background: white;
+    border-radius: 16px;
+    opacity: 0;
+    transform: translateY(10px) scale(0.75);
+    transition:
+        opacity 300ms ease,
+        transform 300ms ease;
+}
+
+.test-modal.is-open .test-modal-overlay {
+    opacity: 1;
+}
+
+.test-modal.is-open .test-modal-panel {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
 </style>
 
