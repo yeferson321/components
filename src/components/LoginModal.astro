@@ -19,7 +19,7 @@ const { translations: t } = Astro.props;
 					
     <div class="px-8 pt-12 pb-8 sm:my-8 sm:w-full sm:max-w-lg rounded-3xl border border-neutral-200/70 bg-white">
 
-		<!-- <MultiStep unmount={true}>
+		<MultiStep unmount={true}>
 
 			<div data-multistep-view="sign-in" data-active="false">
 				<SignInForm tSignIn={t.home.loginModal.signIn} tCaptcha={t.common.captcha}/>
@@ -29,7 +29,7 @@ const { translations: t } = Astro.props;
 				<SignUpForm tSignUp={t.home.loginModal.signUp} tCaptcha={t.common.captcha}/>
 			</div>
 
-		</MultiStep> -->
+		</MultiStep>
 
 		<p class="mt-6 text-center text-base text-neutral-800">{t.home.loginModal.social.title}</p>
 					
