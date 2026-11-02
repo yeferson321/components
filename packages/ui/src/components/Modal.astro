@@ -132,14 +132,17 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
             if (unmount === "true") appendChildElement(modalElement);
             modalElement.dataset.state = "opening";
 
-            void modalElement.offsetHeight;
-
             requestAnimationFrame(() => {
-                setAccessibility(false);
-                modalElement.addEventListener("keydown", handleKeyboard);
-                (focusableElement || modalElement).focus();
+                requestAnimationFrame(() => {
+                    setAccessibility(false);
+                    modalElement.addEventListener("keydown", handleKeyboard);
+                    (focusableElement || modalElement).focus();
+                });
             });
         };
+
+        new MutationObserver(() => console.log(modalElement.dataset.state))
+    .observe(modalElement, { attributes: true, attributeFilter: ['data-state'] });
 
         const hideModal = () => {
             if (modalElement.dataset.state !== "open") return;
