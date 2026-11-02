@@ -41,59 +41,69 @@ const { locale, translations: t } = Astro.props;
 </html>
 
 <script>
-	const modal = document.querySelector("#test-modal");
-const openButton = document.querySelector("#test-modal-open");
-const closeButton = document.querySelector("#test-modal-close");
-
+const modal = document.querySelector("#test-modal");
 const panel = modal.querySelector(".test-modal-panel");
 
+let isOpen = false;
+let transitionVersion = 0;
+
 const openModal = () => {
-    modal.classList.add("is-open");
-};
+    if (isOpen) return;
 
-const closeModal = () => {
-    modal.classList.remove("is-open");
-};
+    isOpen = true;
+    transitionVersion++;
 
-panel.addEventListener("transitionend", (event) => {
-    if (
-        event.target !== panel ||
-        event.propertyName !== "transform"
-    ) {
-        return;
-    }
+    modal.style.display = "grid";
 
-    if (!modal.classList.contains("is-open")) {
-        modal.style.visibility = "hidden";
-    }
-});
-
-openButton.addEventListener("click", () => {
-    modal.style.visibility = "visible";
+    // Commit the initial styles before starting the transition.
+    void modal.offsetWidth;
 
     requestAnimationFrame(() => {
+        if (!isOpen) return;
+
         modal.classList.add("is-open");
     });
-});
+};
 
-closeButton.addEventListener("click", closeModal);
+const closeModal = async () => {
+    if (!isOpen) return;
+
+    isOpen = false;
+    const currentTransition = ++transitionVersion;
+
+    modal.classList.remove("is-open");
+
+    // Ensure the closing transition is registered.
+    void panel.offsetWidth;
+
+    const animations = modal.getAnimations({ subtree: true });
+
+    await Promise.allSettled(
+        animations.map((animation) => animation.finished)
+    );
+
+    // Prevent an old closing transition from hiding a reopened modal.
+    if (transitionVersion !== currentTransition || isOpen) return;
+
+    modal.style.display = "none";
+};
+
+document.querySelector("#test-modal-open").addEventListener("click", openModal);
+document.querySelector("#test-modal-close").addEventListener("click", closeModal);
 </script>
 
 <style>
 	@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@300..900&family=Righteous&display=swap');
 
-	.test-modal {
+.test-modal {
     position: fixed;
     inset: 0;
-    display: grid;
+    display: none;
     place-items: center;
-    visibility: hidden;
     pointer-events: none;
 }
 
-
 .test-modal.is-open {
-    visibility: visible;
     pointer-events: auto;
 }
 
@@ -102,7 +112,7 @@ closeButton.addEventListener("click", closeModal);
     inset: 0;
     background: rgb(0 0 0 / 50%);
     opacity: 0;
-    transition: opacity 300ms ease;
+    transition: opacity 600ms ease;
 }
 
 .test-modal-panel {
@@ -113,8 +123,8 @@ closeButton.addEventListener("click", closeModal);
     opacity: 0;
     transform: translateY(10px) scale(0.75);
     transition:
-        opacity 300ms ease,
-        transform 300ms ease;
+        opacity 600ms ease,
+        transform 600ms ease;
 }
 
 .test-modal.is-open .test-modal-overlay {
