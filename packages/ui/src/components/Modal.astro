@@ -77,12 +77,9 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
 .modal[data-vertical="bottom"] .modal-positioner { --align-items: flex-end; }
 
 .modal-panel {
-    pointer-events: auto;
     opacity: 0;
     transform: translateY(10px) scale(0.75);
-    transition:
-        opacity var(--transition-duration, 300ms) var(--transition-timing, ease-in-out),
-        transform var(--transition-duration, 300ms) var(--transition-timing, ease-in-out);
+    transition: opacity 300ms ease, transform 300ms ease;
 }
 
 .modal[data-state="open"] .modal-panel {
@@ -110,7 +107,7 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
         const overlayElement = modalElement.querySelector<HTMLDivElement>(".modal-overlay");
         if (!overlayElement) throw new Error(`Modal "${modalId}": component internal element(s) .modal-overlay not found.`);
 
-        unmount === "true" ? removeElement(modalElement) : appendChildElement(modalElement);
+        // unmount === "true" ? removeElement(modalElement) : appendChildElement(modalElement);
 
         const openButtonElement = document.querySelector<HTMLButtonElement>(`[data-modal-open="${modalId}"]`);
         const closeButtonElement = modalElement.querySelector<HTMLButtonElement>(`[data-modal-close="${modalId}"]`);
@@ -137,7 +134,7 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
             // Se guarda antes de abrir, para restaurarlo al cerrar.
             lastFocusedElement = document.activeElement as HTMLElement;
 
-            if (unmount === "true") appendChildElement(modalElement);
+            // if (unmount === "true") appendChildElement(modalElement);
             modalElement.dataset.state = "opening";
 
             
@@ -161,7 +158,7 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
             // Resuelve al instante si no hay animaciones en curso.
             Promise.allSettled(modalElement.getAnimations({ subtree: true }).map(({ finished }) => finished)).then(() => {
                 setAccessibility(true);
-                if (unmount === "true") removeElement(modalElement);
+                // if (unmount === "true") removeElement(modalElement);
             });
         };
 
