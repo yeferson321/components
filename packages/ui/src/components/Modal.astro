@@ -95,6 +95,14 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
     import { appendChildElement, removeElement, trapFocus } from '#/utils/overlay';
     import type { ChangeDetail } from '#/components/types.ts';
 
+    const nextFrame = (callback: FrameRequestCallback) => {
+    if (typeof requestAnimationFrame === "function") {
+        requestAnimationFrame(callback);
+    } else {
+        setTimeout(callback, 16);
+    }
+};
+
     const setupModal = (modalElement: HTMLDivElement) => {
         const { modalId, unmount } = modalElement.dataset;
         if (!modalId) throw new Error('Missing "data-modal-id" attribute on Modal component');
@@ -133,13 +141,13 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
             modalElement.dataset.state = "opening";
 
             
-    requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-            setAccessibility(false);
-            modalElement.addEventListener("keydown", handleKeyboard);
-            (focusableElement || modalElement).focus();
-        });
+   nextFrame(() => {
+    nextFrame(() => {
+        setAccessibility(false);
+        modalElement.addEventListener("keydown", handleKeyboard);
+        (focusableElement || modalElement).focus();
     });
+});
         };
 
         const hideModal = () => {
