@@ -41,6 +41,14 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
     --transition-timing: ease-in-out;
 }
 
+.modal:not([data-state="closed"]) .modal-panel {
+    will-change: opacity, transform;
+}
+
+.modal:not([data-state="closed"]) > .modal-overlay {
+    will-change: opacity;
+}
+
 .modal:not([data-state="closed"]) {
     display: block;
 }
