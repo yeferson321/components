@@ -15,8 +15,8 @@ body {
 /* @media (prefers-reduced-motion: reduce) { * { transition: none !important } } */
 
 :root {
-    /* --transition-duration: 300ms;
-    --transition-timing: ease-in-out; */
+    --transition-duration: 500ms;
+    --transition-timing: ease-in-out;
 }
 
 /* custom scrollbar */

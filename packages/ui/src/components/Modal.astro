@@ -129,14 +129,20 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
             // Se guarda antes de abrir, para restaurarlo al cerrar.
             lastFocusedElement = document.activeElement as HTMLElement;
 
-            if (unmount === "true") appendChildElement(modalElement);
-            modalElement.dataset.state = "opening";
+             if (unmount === "true") appendChildElement(modalElement);
 
-            requestAnimationFrame(() => {
-                setAccessibility(false);
-                modalElement.addEventListener("keydown", handleKeyboard);
-                (focusableElement || modalElement).focus();
-            });
+    modalElement.dataset.state = "opening";
+
+    // Force the browser to calculate the initial layout.
+    void modalElement.offsetWidth;
+
+    requestAnimationFrame(() => {
+        if (modalElement.dataset.state !== "opening") return;
+
+        setAccessibility(false);
+        modalElement.addEventListener("keydown", handleKeyboard);
+        (focusableElement || modalElement).focus();
+    });
         };
 
         const hideModal = () => {
