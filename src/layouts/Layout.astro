@@ -34,11 +34,12 @@ const { locale, translations: t } = Astro.props;
 	x
 </button>
 
-		<div id="prueba-modal" class="modal" data-modal-id="prueba-modal" data-state="closed" data-vertical="center" data-unmount={String(false)} aria-labelledby={`prueba-modal-title`} tabindex="-1" role="dialog" aria-modal="true" >
+		<div id="prueba-modal" class="modal" data-modal-id="prueba-modal" data-state="closed" data-vertical="center" data-unmount={String(false)} aria-labelledby={`prueba-modal-title`} tabindex="-1" role="dialog" >
 		    <div class="modal-overlay" style={`--overlay-color: rgba(255,0,0,0.5);`}></div>
 		    <div class="modal-wrapper">
 		        <div class="modal-positioner" style={`--offset: 2rem;`}>
 		            <div class="modal-panel">
+						
 		                <div class="px-8 pt-12 pb-8 sm:my-8 sm:w-full sm:max-w-lg rounded-3xl border border-neutral-200/70 bg-white">
 
 
@@ -77,37 +78,37 @@ const { locale, translations: t } = Astro.props;
 </html>
 
 <script>
-    export const appendChildElement = (element: HTMLElement, parent?: HTMLElement) => (parent ?? document.body).appendChild(element);
-export const removeElement = (element: HTMLElement) => element.remove();
+//     export const appendChildElement = (element: HTMLElement, parent?: HTMLElement) => (parent ?? document.body).appendChild(element);
+// export const removeElement = (element: HTMLElement) => element.remove();
 
-export const trapFocus = (element: HTMLElement, event: KeyboardEvent) => {
-    const focusables = Array.from(
-        element.querySelectorAll<HTMLElement>(':is(button, [href], input, select, textarea):not([disabled]):not([aria-hidden="true"])')
-    ).filter((HTMLElement) => HTMLElement.offsetParent !== null);
+// export const trapFocus = (element: HTMLElement, event: KeyboardEvent) => {
+//     const focusables = Array.from(
+//         element.querySelectorAll<HTMLElement>(':is(button, [href], input, select, textarea):not([disabled]):not([aria-hidden="true"])')
+//     ).filter((HTMLElement) => HTMLElement.offsetParent !== null);
 
-    if (focusables.length === 0) return;
+//     if (focusables.length === 0) return;
 
-    const firstFocusable = focusables[0];
-    const lastFocusable = focusables[focusables.length - 1];
-    const boundary = event.shiftKey ? firstFocusable : lastFocusable;
+//     const firstFocusable = focusables[0];
+//     const lastFocusable = focusables[focusables.length - 1];
+//     const boundary = event.shiftKey ? firstFocusable : lastFocusable;
 
-    if (document.activeElement === boundary) {
-        event.preventDefault();
-        (event.shiftKey ? lastFocusable : firstFocusable).focus();
-    }
-};
-   export type ChangeDetail = { isOpen: boolean };
+//     if (document.activeElement === boundary) {
+//         event.preventDefault();
+//         (event.shiftKey ? lastFocusable : firstFocusable).focus();
+//     }
+// };
+//    export type ChangeDetail = { isOpen: boolean };
 
-declare global {
-    interface HTMLElementEventMap {
-        'modal:change': CustomEvent<ChangeDetail>;
-        'sidebar:change': CustomEvent<ChangeDetail>;
-    }
-    interface WindowEventMap {
-        [key: `modal:change:${string}`]: CustomEvent<ChangeDetail>;
-        [key: `sidebar:change:${string}`]: CustomEvent<ChangeDetail>;
-    }
-};
+// declare global {
+//     interface HTMLElementEventMap {
+//         'modal:change': CustomEvent<ChangeDetail>;
+//         'sidebar:change': CustomEvent<ChangeDetail>;
+//     }
+//     interface WindowEventMap {
+//         [key: `modal:change:${string}`]: CustomEvent<ChangeDetail>;
+//         [key: `sidebar:change:${string}`]: CustomEvent<ChangeDetail>;
+//     }
+// };
 
     const setupModal = (modalElement: HTMLDivElement) => {
         const { modalId, unmount } = modalElement.dataset;
@@ -116,58 +117,70 @@ declare global {
         const overlayElement = modalElement.querySelector<HTMLDivElement>(".modal-overlay");
         if (!overlayElement) throw new Error(`Modal "${modalId}": component internal element(s) .modal-overlay not found.`);
 
-        unmount === "true" ? removeElement(modalElement) : appendChildElement(modalElement);
+        // unmount === "true" ? removeElement(modalElement) : appendChildElement(modalElement);
 
         const openButtonElement = document.querySelector<HTMLButtonElement>(`[data-modal-open="${modalId}"]`);
         const closeButtonElement = modalElement.querySelector<HTMLButtonElement>(`[data-modal-close="${modalId}"]`);
-        const focusableElement = modalElement.querySelector<HTMLElement>("[data-modal-autofocus]");
-        let lastFocusedElement: HTMLElement | null = null;
+        // const focusableElement = modalElement.querySelector<HTMLElement>("[data-modal-autofocus]");
+        // let lastFocusedElement: HTMLElement | null = null;
 
         const setAccessibility = (isHidden: boolean) => {
             modalElement.dataset.state = isHidden ? "closed" : "open";
-            modalElement.setAttribute("aria-hidden", String(isHidden));
-            openButtonElement?.setAttribute("aria-expanded", String(!isHidden));
+            // modalElement.setAttribute("aria-hidden", String(isHidden));
+            // openButtonElement?.setAttribute("aria-expanded", String(!isHidden));
 
-            const detail: ChangeDetail = { isOpen: !isHidden };
-            modalElement.dispatchEvent(new CustomEvent('modal:change', { detail }));
-            window.dispatchEvent(new CustomEvent(`modal:change:${modalId}`, { detail }));
+            // const detail: ChangeDetail = { isOpen: !isHidden };
+            // modalElement.dispatchEvent(new CustomEvent('modal:change', { detail }));
+            // window.dispatchEvent(new CustomEvent(`modal:change:${modalId}`, { detail }));
         };
 
-        const handleKeyboard = (event: KeyboardEvent) => {
-            if (event.key === "Escape") return hideModal();
-            if (event.key === "Tab") trapFocus(modalElement, event);
-        };
+        // const handleKeyboard = (event: KeyboardEvent) => {
+        //     if (event.key === "Escape") return hideModal();
+        //     if (event.key === "Tab") trapFocus(modalElement, event);
+        // };
 
         const showModal = () => {
-            if (modalElement.dataset.state !== "closed") return;
+            // if (modalElement.dataset.state !== "closed") return;
             // Se guarda antes de abrir, para restaurarlo al cerrar.
-            lastFocusedElement = document.activeElement as HTMLElement;
+            // lastFocusedElement = document.activeElement as HTMLElement;
 
-            if (unmount === "true") appendChildElement(modalElement);
-            modalElement.dataset.state = "opening";
+            // if (unmount === "true") appendChildElement(modalElement);
+            // modalElement.dataset.state = "opening";
 
-            // void modalElement.offsetHeight;
+			modalElement.style.display = "block";
+
+			void modalElement.offsetWidth;
 
             requestAnimationFrame(() => {
-                setAccessibility(false);
-                modalElement.addEventListener("keydown", handleKeyboard);
-                (focusableElement || modalElement).focus();
+                // setAccessibility(false);
+
+				modalElement.dataset.state = "open";
+                // modalElement.addEventListener("keydown", handleKeyboard);
+                // (focusableElement || modalElement).focus();
             });
         };
 
-        const hideModal = () => {
+        const hideModal = async () => {
             if (modalElement.dataset.state !== "open") return;
 
-            modalElement.removeEventListener("keydown", handleKeyboard);
+            // modalElement.removeEventListener("keydown", handleKeyboard);
             // El foco sale antes de marcar aria-hidden="true".
-            lastFocusedElement?.focus();
+            // lastFocusedElement?.focus();
             modalElement.dataset.state = "closing";
 
             // Resuelve al instante si no hay animaciones en curso.
-            Promise.allSettled(modalElement.getAnimations({ subtree: true }).map(({ finished }) => finished)).then(() => {
-                setAccessibility(true);
-                if (unmount === "true") removeElement(modalElement);
-            });
+            //  void panel.offsetWidth;
+
+    const animations = modalElement.getAnimations({ subtree: true });
+
+    await Promise.allSettled(
+        animations.map((animation) => animation.finished)
+    );
+
+			 if (modalElement.dataset.state !== "closing") return;
+
+			modalElement.style.display = "none";
+    		// modal.dataset.state = "closed";
         };
 
         overlayElement.addEventListener("click", hideModal);
@@ -189,9 +202,9 @@ declare global {
     z-index: 50;
 }
 
-.modal:not([data-state="closed"]) {
+/* .modal.is-open {
     display: block;
-}
+} */
 
 .modal-overlay {
     position: fixed;
