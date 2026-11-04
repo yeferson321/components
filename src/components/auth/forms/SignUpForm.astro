@@ -17,7 +17,6 @@ interface Props {
 
 const { tSignUp, tCaptcha } = Astro.props;
 
-const apiToken = await createApiToken(import.meta.env.API_KEY, import.meta.env.JWT_ENCRYPTION_KEY);
 ---
 
 <h2 id="login-modal-title" class="text-center text-2xl font-medium text-neutral-800">{tSignUp.title}</h2>
@@ -29,7 +28,7 @@ const apiToken = await createApiToken(import.meta.env.API_KEY, import.meta.env.J
     </button>
 </p>
 
-<form id="signup-form" class="mt-6 space-y-4" data-api-token={apiToken}>
+<form id="signup-form" class="mt-6 space-y-4" >
 
     <Input id="signup-email" type="email" name="email" autocomplete="email" spellcheck="false" validate="email"
         minlength={fieldLimits.email.minLength} maxlength={fieldLimits.email.maxLength}
@@ -47,7 +46,7 @@ const apiToken = await createApiToken(import.meta.env.API_KEY, import.meta.env.J
 
     <InputCheckbox id="signup-checkbox" name="terms" label={tSignUp.form.fields.terms.label} messages={tSignUp.form.fields.terms.validation} required />
 
-    <Captcha id="signup" translations={tCaptcha}/>
+    <!-- <Captcha id="signup" translations={tCaptcha}/> -->
 
     <!-- <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
