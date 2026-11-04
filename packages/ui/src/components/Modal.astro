@@ -132,7 +132,7 @@ const { id, class: className, overlayColor, offset, verticalPosition = 'center',
             if (unmount === "true") appendChildElement(modalElement);
             modalElement.dataset.state = "opening";
 
-            // void modalElement.offsetHeight;
+            void modalElement.offsetHeight;
 
             requestAnimationFrame(() => {
                 setAccessibility(false);

@@ -47,7 +47,7 @@ const apiToken = await createApiToken(import.meta.env.API_KEY, import.meta.env.J
 
     <InputCheckbox id="signup-checkbox" name="terms" label={tSignUp.form.fields.terms.label} messages={tSignUp.form.fields.terms.validation} required />
 
-    <!-- <Captcha id="signup" translations={tCaptcha}/> -->
+    <Captcha id="signup" translations={tCaptcha}/>
 
     <!-- <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
@@ -86,7 +86,7 @@ const apiToken = await createApiToken(import.meta.env.API_KEY, import.meta.env.J
     };
 
     window.addEventListener('modal:change:login-modal', (event) => {
-        // console.log("event", event.detail.isOpen)
+        console.log("event", event.detail.isOpen)
         // if (event.detail.state === 'verified') submitButtonElement.disabled = false;
     });
    

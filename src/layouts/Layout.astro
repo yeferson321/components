@@ -30,49 +30,6 @@ const { locale, translations: t } = Astro.props;
 			<!-- id="login-modal" verticalPosition="center" overlayColor="rgba(255,0,0,0.5)" offset="2rem" unmount={false}
 		 -->
 
-		 <button type="button" class="p-2.5 rounded-full bg-blue-500/20 hover:bg-blue-500/30 transition-colors duration-300 ease-in-out" data-modal-open="prueba-modal" aria-label="Abrir modal de inicio de sesión" aria-haspopup="dialog" aria-expanded="false" aria-controls="prueba-modal">
-	x
-</button>
-
-		<div id="prueba-modal" class="modal" data-modal-id="prueba-modal" data-state="closed" data-vertical="center" data-unmount={String(false)} aria-labelledby={`prueba-modal-title`} tabindex="-1" role="dialog" >
-		    <div class="modal-overlay" style={`--overlay-color: rgba(255,0,0,0.5);`}></div>
-		    <div class="modal-wrapper">
-		        <div class="modal-positioner" style={`--offset: 2rem;`}>
-		            <div class="modal-panel">
-						
-		                <div class="px-8 pt-12 pb-8 sm:my-8 sm:w-full sm:max-w-lg rounded-3xl border border-neutral-200/70 bg-white">
-
-
-		<p class="mt-6 text-center text-base text-neutral-800">{t.home.loginModal.social.title}</p>
-					
-        <div class="mt-4 space-y-4">
-
-        	<button class="w-full flex justify-center items-center gap-3 h-12 px-4 rounded-3xl border border-neutral-200/70 bg-neutral-100" aria-label={t.home.loginModal.social.google.ariaLabel}>
-        	    x
-				<span class="text-base font-medium text-neutral-600">{t.home.loginModal.social.google.text}</span>
-        	</button>
-						
-        	<button class="w-full flex justify-center items-center gap-3 h-12 px-4 rounded-3xl border border-neutral-200/70 bg-neutral-100" aria-label={t.home.loginModal.social.x.ariaLabel}>
-        	    x
-				<span class="text-base font-medium text-neutral-600">{t.home.loginModal.social.x.text}</span>
-        	</button>
-
-        </div>
-
-		<p class="mt-6 text-center text-sm text-neutral-800">
-            {t.home.loginModal.terms.text} <a href="/terms" class="underline font-medium">{t.home.loginModal.terms.termsOfUse}</a> • <a href="/privacy" class="underline font-medium">{t.home.loginModal.terms.privacyPolicy}</a>
-        </p>
-	
-		<button type="button" class="absolute top-4 inset-e-7" data-modal-close="login-modal" aria-label={t.home.loginModal.close.ariaLabel}>
-			x
-		</button>
-					
-    </div>
-
-		            </div>
-		        </div>
-		    </div>
-		</div>
 
 	</body>
 </html>
@@ -110,103 +67,23 @@ const { locale, translations: t } = Astro.props;
 //     }
 // };
 
-    const setupModal = (modalElement: HTMLDivElement) => {
-        const { modalId, unmount } = modalElement.dataset;
-        if (!modalId) throw new Error('Missing "data-modal-id" attribute on Modal component');
-
-        const overlayElement = modalElement.querySelector<HTMLDivElement>(".modal-overlay");
-        if (!overlayElement) throw new Error(`Modal "${modalId}": component internal element(s) .modal-overlay not found.`);
-
-        // unmount === "true" ? removeElement(modalElement) : appendChildElement(modalElement);
-
-        const openButtonElement = document.querySelector<HTMLButtonElement>(`[data-modal-open="${modalId}"]`);
-        const closeButtonElement = modalElement.querySelector<HTMLButtonElement>(`[data-modal-close="${modalId}"]`);
-        // const focusableElement = modalElement.querySelector<HTMLElement>("[data-modal-autofocus]");
-        // let lastFocusedElement: HTMLElement | null = null;
-
-        const setAccessibility = (isHidden: boolean) => {
-            modalElement.dataset.state = isHidden ? "closed" : "open";
-            // modalElement.setAttribute("aria-hidden", String(isHidden));
-            // openButtonElement?.setAttribute("aria-expanded", String(!isHidden));
-
-            // const detail: ChangeDetail = { isOpen: !isHidden };
-            // modalElement.dispatchEvent(new CustomEvent('modal:change', { detail }));
-            // window.dispatchEvent(new CustomEvent(`modal:change:${modalId}`, { detail }));
-        };
-
-        // const handleKeyboard = (event: KeyboardEvent) => {
-        //     if (event.key === "Escape") return hideModal();
-        //     if (event.key === "Tab") trapFocus(modalElement, event);
-        // };
-
-        const showModal = () => {
-            // if (modalElement.dataset.state !== "closed") return;
-            // Se guarda antes de abrir, para restaurarlo al cerrar.
-            // lastFocusedElement = document.activeElement as HTMLElement;
-
-            // if (unmount === "true") appendChildElement(modalElement);
-            // modalElement.dataset.state = "opening";
-
-			modalElement.style.display = "block";
-
-			void modalElement.offsetWidth;
-
-            requestAnimationFrame(() => {
-                // setAccessibility(false);
-
-				modalElement.dataset.state = "open";
-                // modalElement.addEventListener("keydown", handleKeyboard);
-                // (focusableElement || modalElement).focus();
-            });
-        };
-
-        const hideModal = async () => {
-            if (modalElement.dataset.state !== "open") return;
-
-            // modalElement.removeEventListener("keydown", handleKeyboard);
-            // El foco sale antes de marcar aria-hidden="true".
-            // lastFocusedElement?.focus();
-            modalElement.dataset.state = "closing";
-
-            // Resuelve al instante si no hay animaciones en curso.
-            //  void panel.offsetWidth;
-
-    const animations = modalElement.getAnimations({ subtree: true });
-
-    await Promise.allSettled(
-        animations.map((animation) => animation.finished)
-    );
-
-			 if (modalElement.dataset.state !== "closing") return;
-
-			modalElement.style.display = "none";
-    		// modal.dataset.state = "closed";
-        };
-
-        overlayElement.addEventListener("click", hideModal);
-        openButtonElement?.addEventListener("click", showModal);
-        closeButtonElement?.addEventListener("click", hideModal);
-        window.addEventListener(`modal:show:${modalId}`, showModal);
-        window.addEventListener(`modal:hide:${modalId}`, hideModal);
-    };
-
-    document.querySelectorAll<HTMLDivElement>(".modal").forEach(setupModal)
+   
 </script>
 
 <style>
 	@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@300..900&family=Righteous&display=swap');
 
-.modal {
+/* .modal {
     display: none;
     position: relative;
     z-index: 50;
-}
+} */
 
 /* .modal.is-open {
     display: block;
 } */
 
-.modal-overlay {
+/* .modal-overlay {
     position: fixed;
     inset: 0px;
     opacity: 0;
@@ -215,10 +92,10 @@ const { locale, translations: t } = Astro.props;
     transition: opacity var(--transition-duration, 300ms) var(--transition-timing, ease-in-out);
 }
 
-.modal[data-state="open"] > .modal-overlay { opacity: 1; }
+.modal[data-state="open"] > .modal-overlay { opacity: 1; } */
 
 /* No captura clics: así llegan al overlay y solo el panel los recibe. */
-.modal-wrapper {
+/* .modal-wrapper {
     position: fixed;
     inset: 0px;
     z-index: 50;
@@ -251,6 +128,6 @@ const { locale, translations: t } = Astro.props;
 .modal[data-state="open"] .modal-panel {
     opacity: 1;
     transform: translateY(0) scale(100%);
-}
+} */
 </style>
 

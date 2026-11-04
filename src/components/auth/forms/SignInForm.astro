@@ -40,7 +40,7 @@ const apiToken = await createApiToken(import.meta.env.API_KEY, import.meta.env.J
         minlength={fieldLimits.password.minLength} maxlength={fieldLimits.password.maxLength} translations={tSignIn.form.fields.currentPassword} required
     />
 
-    <!-- <Captcha id="signin" translations={tCaptcha}/> -->
+    <Captcha id="signin" translations={tCaptcha}/>
 
     <!-- <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 

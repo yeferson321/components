@@ -15,9 +15,11 @@ interface Props {
 const { translations: t } = Astro.props;
 ---
 
-<Modal id="login-modal" verticalPosition="center" overlayColor="rgba(255,0,0,0.5)" offset="2rem" unmount={false}>
+<Modal id="login-modal" verticalPosition="center" overlayColor="rgba(0,0,0,0.5)" offset="2rem" unmount={true}>
 					
     <div class="px-8 pt-12 pb-8 sm:my-8 sm:w-full sm:max-w-lg rounded-3xl border border-neutral-200/70 bg-white">
+
+		<img src="https://cdn.pixabay.com/photo/2023/12/03/21/33/butterfly-8428277_1280.jpg" alt="OnlyPacks Logo" class="mx-auto w-full h-20"/>
 
 		<MultiStep unmount={true}>
 
